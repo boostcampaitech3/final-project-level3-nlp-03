@@ -35,7 +35,7 @@ def checker(sent_a, key_words=None):
     return round(correct/total_key_words, 2) , matching_key_info
 
 
-def main(config, pairs):
+def simple_test(config, pairs):
     # 속도 최적화 고민이 필요할 것 같습니다.
 
     pipe = pipeline('text-classification',
@@ -110,7 +110,16 @@ if __name__=='__main__':
                        header=None)
 
     agg_config = aggregate_args_config(args, config)
-    main(agg_config, text)
+    simple_test(agg_config, text)
+
+    """
+    실제 인풋받는 것까지 고려하면
+    raw_data = get_data() # 선생님이 업로드한 파일 가져오기
+    meta_data, students_answer = meta_info_parsing() # meta정보와 학생답안 parsing
+    # 위의 text는 text similarity 예시를 위해 텍스트 인풋 2개를 넣는 것이지만
+    # 실제로 처리될 때는 meta 정보에 있는 gold_answers 와 학생별 답변을 비교하는 것이 됨 -> for loop 만 조금 수정하면 될 듯
+    test(meta_data, sudents_answer)
+    """
 
 
 
