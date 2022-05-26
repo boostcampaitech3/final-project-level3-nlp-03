@@ -20,8 +20,8 @@ class RuleBasedGenerator:
         self._set_random()
 
     def _set_random(self):
-        random.random(42)
-        np.random.rando(42)
+        random.seed(42)
+        np.random.seed(42)
 
     def get_random_sub(self, sub_list=None):
         if sub_list is None:
@@ -59,7 +59,7 @@ class RuleBasedGenerator:
                 strs += self.sub_df[self.final_column_version][sub_idx]
 
             elif temp =='조사':
-                josa = self.JOSA_LIST[random.choice(len(self.JOSA_LIST))]
+                josa = random.choice(self.JOSA_LIST)
                 strs += josa+' '
 
             elif temp=='verb':
@@ -73,7 +73,7 @@ class RuleBasedGenerator:
                 strs += sub_w
 
             elif temp == '조사':
-                josa = self.JOSA_LIST[random.choice(len(self.JOSA_LIST))]
+                josa = random.choice(self.JOSA_LIST)
                 strs += josa + ' '
 
             elif temp == 'verb':
@@ -81,73 +81,78 @@ class RuleBasedGenerator:
         total_list.append(strs)
 
         # TODO '동사의 유의어를 선택
-        if self.verb_df['유의어'] != 'NA':
+
+        if not pd.isna(self.verb_df['유의어'][verb_idx]):
             strs = ''
             for temp in self.TEMP1:
                 if temp == 'sub':
                     strs += sub_w
 
                 elif temp == '조사':
-                    josa = self.JOSA_LIST[random.choice(len(self.JOSA_LIST))]
+                    josa = random.choice(self.JOSA_LIST)
                     strs += josa + ' '
 
                 elif temp == 'verb':
+
                     strs += self.verb_df['유의어'][verb_idx][0] # 유의어 들 중 첫번째 단어가 그래도 제일 유사하니까 첫번째 유의어만 일단 선택
             total_list.append(strs)
 
         # 만들어진 Pair 중 설정한 값만큼만 반환
-        return np.random.choice(total_list, self.gen_pos_pair)
+        return np.random.choice(total_list, self.gen_pos_pair,replace=False)
 
-    def gen_neg_pair(self, sub_w, sub_idx, verb_w, verb_idx):
+    def gen_neg_data(self, sub_w, sub_idx, verb_w, verb_idx):
         strs = ''
         total_list = []
         # 주어는 유지, 동사 앞에 부정부사 넣는 경우
         # 안, 아니 -, 못 - , -'다'제거하고 -기지 않기 때문이다./ -지 않기 때문이다.
-        for temp in templates:
+        for temp in self.TEMP1:
             if temp == 'sub':
                 strs += sub_w
 
             elif temp == '조사':
-                josa = self.JOSA_LIST[random.choice(len(self.JOSA_LIST))]
+                josa = random.choice(self.JOSA_LIST)
                 strs += josa + ' '
 
             elif temp == 'verb':
-                neg = self.NEG_LIST[random.choice(len(self.NEG_LIST))]
+                neg = random.choice(self.NEG_LIST)
                 strs += neg + ' ' + verb_w  # TODO :  -'다'제거하고 -기지 않기 때문이다./ -지 않기 때문이다.
         total_list.append(strs)
 
         # 주어를 뜻풀이로 바꾸고, 동사 앞에 부정부사 넣는 경우
         strs = ''
-        for temp in templates:
+        for temp in self.TEMP1:
             if temp == 'sub':
                 strs += self.sub_df[self.final_column_version][sub_idx]
 
             elif temp == '조사':
-                josa = self.JOSA_LIST[random.choice(len(self.JOSA_LIST))]
+                josa = random.choice(self.JOSA_LIST)
                 strs += josa + ' '
 
             elif temp == 'verb':
-                neg = self.NEG_LIST[random.choice(len(self.NEG_LIST))]
+                neg = random.choice(self.NEG_LIST)
                 strs += neg + ' ' + verb_w  # TODO :  -'다'제거하고 -기지 않기 때문이다./ -지 않기 때문이다.
         total_list.append(strs)
 
         # TODO 동사의 반의어 선택! 또는 다른 단어
-        if self.verb_df['반의어'] != 'NA':
-            strs = ''
-            for temp in self.TEMP1:
-                if temp == 'sub':
-                    strs += sub_w
+        antonym = False
+        if antonym:
+            if not pd.isna(self.verb_df['반의어'][verb_idx]):
+                breakpoint()
+                strs = ''
+                for temp in self.TEMP1:
+                    if temp == 'sub':
+                        strs += sub_w
 
-                elif temp == '조사':
-                    josa = self.JOSA_LIST[random.choice(len(self.JOSA_LIST))]
-                    strs += josa + ' '
+                    elif temp == '조사':
+                        josa = random.choice(self.JOSA_LIST)
+                        strs += josa + ' '
 
-                elif temp == 'verb':
-                    strs += self.verb_df['반의어'][verb_idx][0] # 유의어 들 중 첫번째 단어가 그래도 제일 유사하니까 첫번째 유의어만 일단 선택
-            total_list.append(strs)
+                    elif temp == 'verb':
+                        strs += self.verb_df['반의어'][verb_idx][0] # 유의어 들 중 첫번째 단어가 그래도 제일 유사하니까 첫번째 유의어만 일단 선택
+                total_list.append(strs)
 
         # 만들어진 Pair 중 설정한 값만큼만 반환
-        return np.random.choice(total_list, self.gen_neg_pair)
+        return np.random.choice(total_list, self.gen_neg_pair,replace=False)
 
 
     def make_pairs(self):
@@ -156,7 +161,7 @@ class RuleBasedGenerator:
         sub_w, sub_idx = self.get_random_sub()
         verb_w, verb_idx = self.get_random_verb()
         org_sents = ''
-        for temp in templates:
+        for temp in self.TEMP1:
             if temp == 'sub':
                 org_sents += sub_w
             elif temp == 'verb':
@@ -164,8 +169,8 @@ class RuleBasedGenerator:
             elif temp=='조사':
                 org_sents += '은' + ' ' # 기본형은 '은' 으로
 
-        pos_pairs = self.gen_pos_pair(sub_w, sub_idx, verb_w, verb_idx)
-        neg_pairs = self.gen_neg_pair(sub_w, sub_idx, verb_w, verb_idx)
+        pos_pairs = self.gen_pos_data(sub_w, sub_idx, verb_w, verb_idx)
+        neg_pairs = self.gen_neg_data(sub_w, sub_idx, verb_w, verb_idx)
         return {'sub_w':sub_w, 'verb_w':verb_w, 'org_sents':org_sents, 'pos_pairs':pos_pairs, 'neg_pairs':neg_pairs}
 
     def gen_data(self, num_itr=500, version_name='test'):
@@ -180,45 +185,46 @@ class RuleBasedGenerator:
                           'sent_b':[],
                           'label':[],
                           'org_sents':[]} # org_sents는 식별 인자용
-        for itr in num_itr:
+        for itr in range(num_itr):
             pair_out = self.make_pairs()
+            org_sents = pair_out['org_sents']
             for k, v in org_data_dict.items():
                 org_data_dict[k].append(pair_out[k])
 
             # 기본 조합  : org_sents + pos/ neg
-            for pos_idx in range(len(pos_pairs)):
+            for pos_idx in range(len(pair_out['pos_pairs'])):
                 csv_data['sent_a'].append(org_sents)
-                csv_data['sent_b'].append(pos_pairs[pos_idx])
+                csv_data['sent_b'].append(pair_out['pos_pairs'][pos_idx])
                 csv_data['label'].append(1)
                 csv_data['org_sents'].append(org_sents)
 
-            for neg_idx in range(len(neg_pairs)):
+            for neg_idx in range(len(pair_out['neg_pairs'])):
                 csv_data['sent_a'].append(org_sents)
-                csv_data['sent_b'].append(neg_pairs[neg_idx])
+                csv_data['sent_b'].append(pair_out['neg_pairs'][neg_idx])
                 csv_data['label'].append(0)
                 csv_data['org_sents'].append(org_sents)
 
             # 좀더 생각한 조합 : pos<->pos, neg<->neg, pos<->neg
-            sent_a, sent_b = np.random.choice(pos_pairs, 2)
+            sent_a, sent_b = np.random.choice(pair_out['pos_pairs'], 2)
             csv_data['sent_a'].append(sent_a)
-            csv_data['sent_a'].append(sent_b)
+            csv_data['sent_b'].append(sent_b)
             csv_data['label'].append(1)
             csv_data['org_sents'].append(org_sents)
 
-            sent_a, sent_b = np.random.choice(neg_pairs, 2)
+            sent_a, sent_b = np.random.choice(pair_out['neg_pairs'], 2)
             csv_data['sent_a'].append(sent_a)
-            csv_data['sent_a'].append(sent_b)
+            csv_data['sent_b'].append(sent_b)
             csv_data['label'].append(1)
             csv_data['org_sents'].append(org_sents)
 
             # 다른 pair에 대한 데이터가 더 만들어지게 될 것. -> 채점 입장에서 같은 것보다 얼마나 다르냐가 더 중요하니 그런 데이터를 더 모은다고 볼 수 있을까?
-            for pos_idx in range(len(pos_pairs)):
-                for neg_idx in range(len(neg_pairs)):
-                    csv_data['sent_a'].append(pos_pairs[pos_idx])
-                    csv_data['sent_a'].append(neg_pairs[neg_idx])
+            for pos_idx in range(len(pair_out['pos_pairs'])):
+                for neg_idx in range(len(pair_out['neg_pairs'])):
+                    csv_data['sent_a'].append(pair_out['pos_pairs'][pos_idx])
+                    csv_data['sent_b'].append(pair_out['neg_pairs'][neg_idx])
                     csv_data['label'].append(0)
                     csv_data['org_sents'].append(org_sents)
-
+        # breakpoint()
         df = pd.DataFrame(csv_data)
         df.to_csv(f'./gen_data_{version_name}_{len(csv_data)}.csv')
 
@@ -232,4 +238,6 @@ if __name__=='__main__':
     verb_2 = pd.read_csv('/opt/ml/projects/final-project-level3-nlp-03/data_collection/preprocessed_VA.csv').drop(columns=['Unnamed: 0'])
     sub_df = pd.concat([sub_1, sub_2],ignore_index=True)
     verb_df = pd.concat([verb_1, verb_2],ignore_index=True)
-    breakpoint()
+    generator = RuleBasedGenerator(sub_df, verb_df)
+    generator.gen_data()
+    print('Finished!')
