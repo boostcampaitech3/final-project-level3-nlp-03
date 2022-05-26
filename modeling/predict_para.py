@@ -2,7 +2,6 @@ import torch
 import sys
 import random
 import numpy as np
-import matplotlib.pyplot as plt
 import pandas as pd
 
 import streamlit as st
@@ -28,6 +27,7 @@ def sentences_predict(model, tokenizer, sent_A, sent_B):
     tokenized_sent = tokenizer(
             sent_A,
             sent_B,
+            padding = True,
             return_tensors="pt",
             truncation=True,
             add_special_tokens=True,
@@ -56,14 +56,18 @@ def main():
   
   device = torch.device('cuda:0' if torch.cuda.is_available() else 'cpu')
   
-  PATH = "/opt/ml/results/checkpoint-1500/"
+  PATH = "/opt/ml/results2/checkpoint-1500/"
   model = load_model("klue/roberta-large")
   model.load_state_dict(torch.load(PATH + "pytorch_model.bin"))  # 전체 모델을 통째로 불러옴, 클래스 선언 필수
   
   tokenizer = AutoTokenizer.from_pretrained('klue/roberta-large')
-  result, logits = sentences_predict(model, tokenizer, '온도가 하강한다.', '온도가 상승한다.')
-  print(result)
+  sentA = pd.read_csv("../data/example.csv")["answer"].to_list()[:10]
+  sentB = ["더 질좋은 제품을 생산할 수 있으며 더 좋은 제품을 소비자에게 제공하려 힘쓸것이다."]*len(sentA)  
+  result, logits = sentences_predict(model, tokenizer, sentA, sentB)
+  softmax = torch.nn.Softmax(dim=1)
+  prob = softmax(torch.tensor(logits))
   print(logits)
+  print(prob)
 
 if __name__ == "__main__":
     main()

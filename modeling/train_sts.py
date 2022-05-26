@@ -8,7 +8,7 @@ from metrics import compute_metrics
 
 from transformers import AutoModel, AutoModelForSequenceClassification, AutoTokenizer, BertTokenizer, Trainer, TrainingArguments, AutoConfig
 
-from utils import seed_fix, aggregate_args_config, compute_metrics
+from utils import seed_fix, aggregate_args_config
 from dataset import MultiSentDataset_STS
 from arguments import get_args
 from models import get_model
@@ -90,6 +90,9 @@ def main(config):
         logging_dir=config['LOGGING']['logging_dir'],  # directory for storing logs
         logging_steps=config['LOGGING']['logging_steps'],
         save_total_limit=config['LOGGING']['save_total_limit'],
+        save_steps=config['TRAIN']['save_steps'],
+        eval_steps=config['TRAIN']['eval_steps'],
+        evaluation_strategy=config['TRAIN']['evaluation_strategy'],
     )
 
 

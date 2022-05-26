@@ -5,7 +5,7 @@ import numpy as np
 import pandas as pd
 import yaml
 
-from transformers import Trainer,TrainingArguments, AutoConfig
+from transformers import Trainer,TrainingArguments, AutoConfig, AutoModelForTokenClassification
 from tokenizer import get_tokenizer
 
 from utils import seed_fix, aggregate_args_config, compute_metrics
@@ -52,10 +52,18 @@ def main(config):
         logging_dir=config['LOGGING']['logging_dir'],  # directory for storing logs
         logging_steps=config['LOGGING']['logging_steps'],
         save_total_limit=config['LOGGING']['save_total_limit'],
+        save_steps=config['TRAIN']['save_steps'],
+        eval_steps=config['TRAIN']['eval_steps'],
+        evaluation_strategy=config['TRAIN']['evaluation_strategy'],
     )
 
     #######  models  #############
     model = get_model(config)
+    # model_checkpoint = config['MODEL']['model_name']
+    # model_config = AutoConfig.from_pretrained(model_checkpoint)
+    # model_config.num_labels = 2
+    # model = AutoModelForTokenClassification.from_config(model_config)
+    
     # model.parameters
     model.to(device)
 
