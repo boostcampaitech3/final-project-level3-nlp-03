@@ -56,18 +56,18 @@ def main():
   
   device = torch.device('cuda:0' if torch.cuda.is_available() else 'cpu')
   
-  PATH = "/opt/ml/results2/checkpoint-1500/"
+  PATH = "/opt/ml/project/final-project-level3-nlp-03/modeling/results_para/checkpoint-2000/"
   model = load_model("klue/roberta-large")
   model.load_state_dict(torch.load(PATH + "pytorch_model.bin"))  # 전체 모델을 통째로 불러옴, 클래스 선언 필수
   
   tokenizer = AutoTokenizer.from_pretrained('klue/roberta-large')
-  sentA = pd.read_csv("../data/example.csv")["answer"].to_list()[:10]
-  sentB = ["더 질좋은 제품을 생산할 수 있으며 더 좋은 제품을 소비자에게 제공하려 힘쓸것이다."]*len(sentA)  
+  sentA = pd.read_csv("../data/example.csv")["answer"].to_list()
+  sentB = ["제과점이 경쟁을 하게 되면 제품의 가격은 낮아지고 품질은 좋아진다. 또 제품의 다양성이 증가하고 소비자들은 이를 통해 혜택을 볼 수 있다."]*len(sentA)  
   result, logits = sentences_predict(model, tokenizer, sentA, sentB)
   softmax = torch.nn.Softmax(dim=1)
   prob = softmax(torch.tensor(logits))
-  print(logits)
-  print(prob)
+  ans = prob.argmax(dim=1)
+  pd.DataFrame({"sentA" : sentA, "prob" : prob.detach().cpu().numpy()[:,1], "ans": ans}).to_csv("../data/example_prob3.csv")
 
 if __name__ == "__main__":
     main()
