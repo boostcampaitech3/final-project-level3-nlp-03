@@ -7,11 +7,11 @@ class RuleBasedGenerator:
     TEMP1 = ['sub', '조사', 'verb']
     JOSA_LIST = ['은','는', '이', '가'] # 말이 안되더라도
     NEG_LIST = ['안', '아니', '못']
-    def __init__(self, sub_df, verb_df, gen_pos_pair=2, gen_neg_pair=2, final_column_version='v4'):
+    def __init__(self, sub_df, verb_df, gen_pos_pair=2, gen_neg_pair=2, final_column_version='v4',antonym=True):
         self.sub_df = sub_df
         self.verb_df = verb_df
         self.final_column_version = final_column_version
-
+        self.use_antonym = antonym
         self.gen_pos_pair = gen_pos_pair
         self.gen_neg_pair = gen_neg_pair
 
@@ -94,7 +94,7 @@ class RuleBasedGenerator:
 
                 elif temp == 'verb':
 
-                    strs += self.verb_df['유의어'][verb_idx][0] # 유의어 들 중 첫번째 단어가 그래도 제일 유사하니까 첫번째 유의어만 일단 선택
+                    strs += eval(self.verb_df['유의어'][verb_idx])[0] # 유의어 들 중 첫번째 단어가 그래도 제일 유사하니까 첫번째 유의어만 일단 선택
             total_list.append(strs)
 
         # 만들어진 Pair 중 설정한 값만큼만 반환
@@ -134,10 +134,10 @@ class RuleBasedGenerator:
         total_list.append(strs)
 
         # TODO 동사의 반의어 선택! 또는 다른 단어
-        antonym = False
-        if antonym:
+        #antonym = False
+        if self.use_antonym:
             if not pd.isna(self.verb_df['반의어'][verb_idx]):
-                breakpoint()
+                # breakpoint()
                 strs = ''
                 for temp in self.TEMP1:
                     if temp == 'sub':
@@ -148,7 +148,7 @@ class RuleBasedGenerator:
                         strs += josa + ' '
 
                     elif temp == 'verb':
-                        strs += self.verb_df['반의어'][verb_idx][0] # 유의어 들 중 첫번째 단어가 그래도 제일 유사하니까 첫번째 유의어만 일단 선택
+                        strs += self.verb_df['반의어'][verb_idx] # 유의어 들 중 첫번째 단어가 그래도 제일 유사하니까 첫번째 유의어만 일단 선택
                 total_list.append(strs)
 
         # 만들어진 Pair 중 설정한 값만큼만 반환
@@ -231,13 +231,22 @@ class RuleBasedGenerator:
 
 if __name__=='__main__':
     import pandas as pd
-    sub_1 = pd.read_csv('/opt/ml/projects/final-project-level3-nlp-03/data_collection/preprocessed_NNG.csv').drop(columns=['Unnamed: 0'])
-    sub_2 = pd.read_csv('/opt/ml/projects/final-project-level3-nlp-03/data_collection/preprocessed_NNP.csv').drop(columns=['Unnamed: 0'])
+    # sub_1 = pd.read_csv('/opt/ml/projects/final-project-level3-nlp-03/data_collection/preprocessed_NNG.csv').drop(columns=['Unnamed: 0'])
+    # sub_2 = pd.read_csv('/opt/ml/projects/final-project-level3-nlp-03/data_collection/preprocessed_NNP.csv').drop(columns=['Unnamed: 0'])
+    #
+    # verb_1 = pd.read_csv('/opt/ml/projects/final-project-level3-nlp-03/data_collection/preprocessed_VV.csv').drop(columns=['Unnamed: 0'])
+    # verb_2 = pd.read_csv('/opt/ml/projects/final-project-level3-nlp-03/data_collection/preprocessed_VA.csv').drop(columns=['Unnamed: 0'])
+    # sub_df = pd.concat([sub_1, sub_2],ignore_index=True)
+    # verb_df = pd.concat([verb_1, verb_2],ignore_index=True)
 
-    verb_1 = pd.read_csv('/opt/ml/projects/final-project-level3-nlp-03/data_collection/preprocessed_VV.csv').drop(columns=['Unnamed: 0'])
-    verb_2 = pd.read_csv('/opt/ml/projects/final-project-level3-nlp-03/data_collection/preprocessed_VA.csv').drop(columns=['Unnamed: 0'])
-    sub_df = pd.concat([sub_1, sub_2],ignore_index=True)
-    verb_df = pd.concat([verb_1, verb_2],ignore_index=True)
-    generator = RuleBasedGenerator(sub_df, verb_df)
+  #  sub_1 = pd.read_csv('/opt/ml/projects/final-project-level3-nlp-03/data_collection/preprocessed_NNG.csv').drop(columns=['Unnamed: 0'])
+    sub_2 = pd.read_csv('/opt/ml/projects/final-project-level3-nlp-03/data_collection/preprocessed_NNG_v5.csv').drop(columns=['Unnamed: 0'])
+
+  #  verb_1 = pd.read_csv('/opt/ml/projects/final-project-level3-nlp-03/data_collection/preprocessed_VV.csv').drop(columns=['Unnamed: 0'])
+    verb_2 = pd.read_csv('/opt/ml/projects/final-project-level3-nlp-03/data_collection/preprocessed_VA_v5.csv').drop(columns=['Unnamed: 0'])
+  #  sub_df = pd.concat([sub_1, sub_2],ignore_index=True)
+  #  verb_df = pd.concat([verb_1, verb_2],ignore_index=True)
+
+    generator = RuleBasedGenerator(sub_2, verb_2,final_column_version='v5',antonym=True)
     generator.gen_data()
     print('Finished!')
