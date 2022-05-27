@@ -17,8 +17,8 @@ def str2bool(v):
 def get_args():
     parser = argparse.ArgumentParser()
     # basic environment args & output , logging saving
-    parser.add_argument("--model_save", type=str, default='./results', help="output dir")
-    parser.add_argument("--loggig_steps", type=int, default=500, help="logging steps")
+    parser.add_argument("--model_save", type=str, default='./results_para', help="output dir")
+    parser.add_argument("--loggig_steps", type=int, default=200, help="logging steps")
     parser.add_argument("--save_total_limit", type=int, default=2, help="saving limit")
     parser.add_argument("--save_steps", type=int, default=200, help="saving steps")
     parser.add_argument("--eval_steps", type=int, default=200, help="evaluation steps")
