@@ -31,12 +31,18 @@
       </template>
     </el-table-column>
   </el-table>
-  <el-dialog title="Shipping address" :visible.sync="dialogTableVisible">
-
+  <el-dialog title="채점 결과" :visible.sync="dialogTableVisible" width="90%">
     <el-table :data="gridData">
-      <el-table-column property="date" label="Date" width="150"></el-table-column>
-      <el-table-column property="name" label="Name" width="200"></el-table-column>
-      <el-table-column property="address" label="Address"></el-table-column>
+      <el-table-column property="problem_num" label="문제번호"></el-table-column>
+      <el-table-column property="keyword" label="키워드">
+        <template slot-scope="scope">
+          <div slot="reference" class="name-wrapper">
+            <el-tag size="medium">{{ scope.row.keyword }}</el-tag>
+          </div>
+      </template>
+      </el-table-column>
+      <el-table-column property="similarity" label="유사도 점수"></el-table-column>
+      <el-table-column property="correctness" label="정답"></el-table-column>
     </el-table>
   </el-dialog>
 </div>
@@ -59,21 +65,10 @@ data() {
 
 
   gridData: [{
-          date: '2016-05-02',
-          name: 'John Smith',
-          address: 'No.1518,  Jinshajiang Road, Putuo District'
-        }, {
-          date: '2016-05-04',
-          name: 'John Smith',
-          address: 'No.1518,  Jinshajiang Road, Putuo District'
-        }, {
-          date: '2016-05-01',
-          name: 'John Smith',
-          address: 'No.1518,  Jinshajiang Road, Putuo District'
-        }, {
-          date: '2016-05-03',
-          name: 'John Smith',
-          address: 'No.1518,  Jinshajiang Road, Putuo District'
+          problem_num: 'Q1',
+          keyword: "대류 ",
+          similarity: 20.5,
+          correctness : 1,
         }],
         dialogTableVisible: false,
       }
