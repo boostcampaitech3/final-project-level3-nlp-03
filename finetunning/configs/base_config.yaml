@@ -1,0 +1,35 @@
+# argparse, yaml
+# https://www.notion.so/yaml-configuration-a911146bffb04b92abfef8f54e291852
+# https://csm-kr.tistory.com/19
+# https://velog.io/@leaps/Pytorch-1.-Config-module-%EB%A7%8C%EB%93%A4%EA%B8%B0
+
+TRAIN_DATA:
+    data_path : '../data/train/para_kqc_sim_data.txt'
+
+MODEL:
+    model_name : 'klue/roberta-large' # used for model, tokenizer
+    num_labels : 2
+
+TOKENIZER:
+    truncation : True
+    max_length : 64
+
+TRAIN:
+    num_train_epochs : 6
+    train_bs : 64
+    eval_bs : 64
+    lr : 5e-5
+
+OUTPUT:
+    model_save : './results'
+
+LOGGING:
+    logging_dir: './logs'
+    logging_steps : 500
+    save_total_limit : 2
+    wandb : False
+
+ETC:
+    seed : 42
+
+
