@@ -1,0 +1,1 @@
+# CLASS LIKE DICTIONARY 사용 여부에 따라 구현

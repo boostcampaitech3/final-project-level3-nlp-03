@@ -183,7 +183,7 @@ class RuleBasedGenerator:
         # 하지만 실제 데이터로 사용하려면..
         csv_data = {'sent_a':[],
                           'sent_b':[],
-                          'label':[],
+                          'labels':[],
                           'org_sents':[]} # org_sents는 식별 인자용
         for itr in range(num_itr):
             pair_out = self.make_pairs()
@@ -195,26 +195,26 @@ class RuleBasedGenerator:
             for pos_idx in range(len(pair_out['pos_pairs'])):
                 csv_data['sent_a'].append(org_sents)
                 csv_data['sent_b'].append(pair_out['pos_pairs'][pos_idx])
-                csv_data['label'].append(1)
+                csv_data['labels'].append(1)
                 csv_data['org_sents'].append(org_sents)
 
             for neg_idx in range(len(pair_out['neg_pairs'])):
                 csv_data['sent_a'].append(org_sents)
                 csv_data['sent_b'].append(pair_out['neg_pairs'][neg_idx])
-                csv_data['label'].append(0)
+                csv_data['labels'].append(0)
                 csv_data['org_sents'].append(org_sents)
 
             # 좀더 생각한 조합 : pos<->pos, neg<->neg, pos<->neg
             sent_a, sent_b = np.random.choice(pair_out['pos_pairs'], 2)
             csv_data['sent_a'].append(sent_a)
             csv_data['sent_b'].append(sent_b)
-            csv_data['label'].append(1)
+            csv_data['labels'].append(1)
             csv_data['org_sents'].append(org_sents)
 
             sent_a, sent_b = np.random.choice(pair_out['neg_pairs'], 2)
             csv_data['sent_a'].append(sent_a)
             csv_data['sent_b'].append(sent_b)
-            csv_data['label'].append(1)
+            csv_data['labels'].append(1)
             csv_data['org_sents'].append(org_sents)
 
             # 다른 pair에 대한 데이터가 더 만들어지게 될 것. -> 채점 입장에서 같은 것보다 얼마나 다르냐가 더 중요하니 그런 데이터를 더 모은다고 볼 수 있을까?
@@ -222,7 +222,7 @@ class RuleBasedGenerator:
                 for neg_idx in range(len(pair_out['neg_pairs'])):
                     csv_data['sent_a'].append(pair_out['pos_pairs'][pos_idx])
                     csv_data['sent_b'].append(pair_out['neg_pairs'][neg_idx])
-                    csv_data['label'].append(0)
+                    csv_data['labels'].append(0)
                     csv_data['org_sents'].append(org_sents)
         # breakpoint()
         df = pd.DataFrame(csv_data)
@@ -248,5 +248,5 @@ if __name__=='__main__':
   #  verb_df = pd.concat([verb_1, verb_2],ignore_index=True)
 
     generator = RuleBasedGenerator(sub_2, verb_2,final_column_version='v5',antonym=True)
-    generator.gen_data()
+    generator.gen_data(num_itr=1800)
     print('Finished!')
