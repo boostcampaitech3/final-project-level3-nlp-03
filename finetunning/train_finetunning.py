@@ -5,18 +5,20 @@ import numpy as np
 import pandas as pd
 import yaml
 
-from transformers import Trainer,TrainingArguments, AutoConfig, AutoModelForTokenClassification
+from transformers import Trainer, TrainingArguments, AutoConfig, AutoModelForTokenClassification
 from tokenizer import get_tokenizer
 
 from utils import seed_fix, aggregate_args_config, compute_metrics_bin, compute_metrics_reg
 from dataset import MultiSentDataset
 from arguments import get_args
-from models import get_model, get_trained_model
+from models import get_model, get_trained_model, get_trained_local_model
 # from preprocessing import preprocess_data, tokenizing_data, get_label
 from preprocessing import *
 from datasets import load_dataset
 
 import wandb
+
+LOAD_FROM = 'klue/bert-base' # '/opt/ml/projects/final-project-level3-nlp-03/finetunning/results/klueSTS_first/checkpoint-1000'
 
 def main(config):
     device = torch.device('cuda:0' if torch.cuda.is_available() else 'cpu')
@@ -24,7 +26,7 @@ def main(config):
     wandb.login()
     exp_full_name = f"{config['MODEL']['model_name']}_{config['TRAIN_DATA']['data_name']}_{config['TASK']['type']}_{config['TRAIN']['lr']}"
     wandb.init(project='final-projects',
-               name=exp_full_name) # entity nono
+               name=exp_full_name)  # entity nono
 
     ####### DATA PROCESSING #############
     # Data type 따라서
@@ -36,11 +38,12 @@ def main(config):
         train_label = get_label(train_data)
         test_label = get_label(test_data)
 
-    elif config['TRAIN_DATA']['data_name'] in ['korsts','paraKQC', 'gen']:
+    elif config['TRAIN_DATA']['data_name'] in ['korsts', 'paraKQC', 'gen', 'kor-sentence']:
         train_data = preprocess_basic(config['TRAIN_DATA']['train_data_path'], train=True)
         test_data = preprocess_basic(config['TEST_DATA']['test_data_path'], train=False)
         train_label = get_label(train_data)
         test_label = get_label(test_data)
+
 
     elif config['TRAIN_DATA']['data_name'] == 'klueSTS':
         dataset = load_dataset("klue", "sts")
@@ -50,37 +53,41 @@ def main(config):
         if config['TASK']['type'] == 'cls':
             train_label = [labels['binary-label'] for labels in train_data['labels']]
             test_label = [labels['binary-label'] for labels in test_data['labels']]
-            compute_metric = compute_metrics_bin
         elif config['TASK']['type'] == 'reg':
             train_label = [labels['label'] for labels in train_data['labels']]
             test_label = [labels['label'] for labels in test_data['labels']]
-            compute_metric = compute_metrics_reg
+
     else:
         raise NotImplementedError
 
     tokenizer = get_tokenizer(config)
     tokenized_train_sentences = tokenizing_data(train_data,
                                                 tokenizer,
-                                                data_type = config['TRAIN_DATA']['data_name'],
-                                                truncation=config['TOKENIZER']['truncation'], # default True
-                                                max_length=config['TOKENIZER']['max_length'] ) # default 64
-
-    tokenized_test_sentences = tokenizing_data(test_data,
-                                                tokenizer,
-                                               data_type=config['TRAIN_DATA']['data_name'],
+                                                data_type=config['TRAIN_DATA']['data_name'],
                                                 truncation=config['TOKENIZER']['truncation'],  # default True
                                                 max_length=config['TOKENIZER']['max_length'])  # default 64
 
+    tokenized_test_sentences = tokenizing_data(test_data,
+                                               tokenizer,
+                                               data_type=config['TRAIN_DATA']['data_name'],
+                                               truncation=config['TOKENIZER']['truncation'],  # default True
+                                               max_length=config['TOKENIZER']['max_length'])  # default 64
 
+    train_dataset = MultiSentDataset(tokenized_train_sentences, train_label,
+                                     data_type=config['TRAIN_DATA']['data_name'])
+    test_dataset = MultiSentDataset(tokenized_test_sentences, test_label, data_type=config['TRAIN_DATA']['data_name'], )
 
-    train_dataset = MultiSentDataset(tokenized_train_sentences, train_label,data_type=config['TRAIN_DATA']['data_name'])
-    test_dataset = MultiSentDataset(tokenized_test_sentences, test_label,data_type=config['TRAIN_DATA']['data_name'],)
-
-    final_output_dir = os.path.join(config['OUTPUT']['model_save'], config['TRAIN_DATA']['data_name']+'_first')
+    final_output_dir = os.path.join(config['OUTPUT']['model_save'], config['TRAIN_DATA']['data_name']+'_second')
     os.makedirs(final_output_dir, exist_ok=True)
 
-#       lr_scheduler_type = train_args.scheduler, # ['linear', 'cosine', 'cosine_with_restarts', 'polynomial', 'constant', 'constant_with_warmup']
+    #       lr_scheduler_type = train_args.scheduler, # ['linear', 'cosine', 'cosine_with_restarts', 'polynomial', 'constant', 'constant_with_warmup']
     #         warmup_steps=train_args.warmup_steps,
+    ####### metric #############
+    if config['TASK']['type'] == 'cls':
+        print('TODO: multi-classification')
+        compute_metric = compute_metrics_bin
+    elif config['TASK']['type'] == 'reg':
+        compute_metric = compute_metrics_reg
 
     #######  ARGUMENTS  #############
     training_args = TrainingArguments(
@@ -94,18 +101,15 @@ def main(config):
         save_steps=config['TRAIN']['save_steps'],
         eval_steps=config['TRAIN']['eval_steps'],
         evaluation_strategy=config['TRAIN']['evaluation_strategy'],
-        lr_scheduler_type = 'linear', # ['linear', 'cosine', 'cosine_with_restarts', 'polynomial', 'constant', 'constant_with_warmup']
+        lr_scheduler_type='linear',
+        # ['linear', 'cosine', 'cosine_with_restarts', 'polynomial', 'constant', 'constant_with_warmup']
         # warmup_steps=train_args.warmup_steps,
 
     )
 
     #######  models  #############
-    #model = get_trained_model(config, LOAD_NAME='xuio/roberta-sts12',pre_task = 'reg', this_task = 'bin', load_from_huggingface=True)
-    model = get_model(config)
-    # model_checkpoint = config['MODEL']['model_name']
-    # model_config = AutoConfig.from_pretrained(model_checkpoint)
-    # model_config.num_labels = 2
-    # model = AutoModelForTokenClassification.from_config(model_config)
+    model = get_trained_local_model(LOAD_FROM, cls_out = config['MODEL']['num_labels']) # 2
+
 
     # model.parameters
     print(model)
@@ -118,15 +122,15 @@ def main(config):
         eval_dataset=test_dataset,  # evaluation dataset
         compute_metrics=compute_metric
     )
-    
+
     trainer.train()
     trainer.evaluate(eval_dataset=test_dataset)
     trainer.save_model(final_output_dir)
     # trainer.save_state(final_output_dir)
     tokenizer.save_pretrained(final_output_dir)
 
-if __name__ == "__main__":
 
+if __name__ == "__main__":
     ## set config
     ## config는 향후 통합 상황을 생각해서 basic으로 넣어두었습니다.
     ## 실험의 용의성을 위해 argparse 사용도 넣어두었습니다.
@@ -137,7 +141,7 @@ if __name__ == "__main__":
     ## config에 추가되어있는 argparse의 값을 변경하려면 config의 소문자값과 일치시켜주세요!
 
     args = get_args()
-    config_path = './configs/first_klueSTS_reg.yaml' #'./configs/base_config.yaml'
+    config_path = args.config_path  # './configs/base_config.yaml'
 
     ## argparse로 세팅한 값을 config 파일에 업데이트하게 됩니다.
     with open(config_path, 'r') as config_file:

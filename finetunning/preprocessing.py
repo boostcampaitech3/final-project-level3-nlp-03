@@ -47,7 +47,7 @@ def preprocess_data(lines:Union[str]) -> DataFrameStr:
     return train_data, test_data
 
 def preprocess_gen_data(data, train_num=12000)-> DataFrameStr:
-    # breakpoint()
+
     train_num = int(len(data)*0.8)
     train_data = data[:train_num]
     test_data = data[train_num:]
@@ -78,19 +78,94 @@ def preprocess_gen_data(data, train_num=12000)-> DataFrameStr:
 
     return train_data, test_data
 
+
+def read_tsv_custom(path='/opt/ml/KorNLUDatasets/KorSTS/sts-dev.tsv'):
+    column_names = {"genre":0, "filename":1, "year":2, "id":3, "score":4, "sentence1":5, "sentence2":6}
+    lines = {v:[] for k,v in column_names.items()}
+    check_idx = []
+    with open(path, 'r') as f:
+        for idx, line in enumerate(f):
+            if idx != 0:
+                line_val = line.rstrip().split('\t')
+                if len(line_val) != 7:
+                    check_idx.append(idx)
+                else:
+                    for idx, val in enumerate(line_val):
+                        lines[idx].append(val)
+    new_df = pd.DataFrame(lines)
+    new_df = new_df.rename(columns={v:k for k,v in column_names.items()})
+    new_df = new_df.rename(columns={'score':'labels'})
+
+    print(f'passed {len(check_idx)} values')
+    print(f'total : {len(new_df)}')
+    return new_df
+
+def preprocess_korSTS_data(data_path, train=True) -> DataFrameStr:
+    # KorSTS train csv 데이터 경우 nan 처리 필요 -> 그냥 tsv로 읽기 통일
+    # KorSTS tsv 파일은 split 오류 발생 -> custom 함수
+    data = read_tsv_custom(data_path)
+
+    # 중복 데이터 제거
+    data.drop_duplicates(subset=['sent_a', 'sent_b'], inplace=True)
+    # 데이터셋 갯수 확인
+    if train:
+        print('중복 제거 후 학습 데이터셋 : {}'.format(len(data)))
+    else:
+        print('중복 제거 후 테스트 데이터셋 : {}'.format(len(data)))
+
+    # null 데이터 제거
+    data.replace('', np.nan, inplace=True)
+    data = data.dropna(how='any')
+
+    if train:
+        print('null 제거 후 학습 데이터셋 : {}'.format(len(data)))
+    else:
+        print('null 제거 후 테스트 데이터셋 : {}'.format(len(data)))
+
+    return data
+
+def preprocess_basic(path, train=True):
+    data = pd.read_csv(path)
+    # 중복 데이터 제거
+    data.drop_duplicates(subset=['sent_a', 'sent_b'], inplace=True)
+    # 데이터셋 갯수 확인
+    if train:
+        print('중복 제거 후 학습 데이터셋 : {}'.format(len(data)))
+    else:
+        print('중복 제거 후 테스트 데이터셋 : {}'.format(len(data)))
+
+    # null 데이터 제거
+    data.replace('', np.nan, inplace=True)
+    data = data.dropna(how='any')
+
+    if train:
+        print('null 제거 후 학습 데이터셋 : {}'.format(len(data)))
+    else:
+        print('null 제거 후 테스트 데이터셋 : {}'.format(len(data)))
+
+    return data
+
+
 def get_label(df):
     try:
         return df['label'].values[0:]
     except:
         return df['labels'].values[0:]
 
+
 def tokenizing_data(data, tokenizer,
+                    data_type,
                     truncation=True,
                     max_length=64):
-
+    if data_type == 'klueSTS':
+        sent1_name = 'sentence1'
+        sent2_name = 'sentence2'
+    else:
+        sent1_name = 'sent_a'
+        sent2_name = 'sent_b'
     tokenized_sentences = tokenizer(
-        list(data['sent_a'][0:]),
-        list(data['sent_b'][0:]),
+        list(data[sent1_name][0:]),
+        list(data[sent2_name][0:]),
         return_tensors="pt",
         padding=True,
         truncation=True,

@@ -19,11 +19,11 @@ from transformers import AutoTokenizer, BertTokenizer
 def upload_model(config):
 
     HUGGINGFACE_AUTH_TOKEN = '' # https://huggingface.co/settings/token
-    MODEL_SAVE_REPO = 'test3'  # ex) 'my-bert-fine-tuned'
-    MODEL_SAVED_PATH = "klue/bert-base"#"/opt/ml/projects/final-project-level3-nlp-03/modeling/results/checkpoint-1000"
+    MODEL_SAVE_REPO = 'para_test_4800'  # ex) 'my-bert-fine-tuned'
+    MODEL_SAVED_PATH = "/opt/ml/projects/final-project-level3-nlp-03/modeling/results_para_korsentence/checkpoint-4800"#"/opt/ml/projects/final-project-level3-nlp-03/modeling/results/checkpoint-1000"
 
     # 학습완료된 모델과 토크나이저 파일 로드
-    tokenizer = AutoTokenizer.from_pretrained(MODEL_SAVED_PATH)
+    # tokenizer = AutoTokenizer.from_pretrained('klue/roberta-large')
     model = AutoModelForSequenceClassification.from_pretrained(
         MODEL_SAVED_PATH)
 
@@ -33,11 +33,11 @@ def upload_model(config):
         use_temp_dir=True,
         # use_auth_token=HUGGINGFACE_AUTH_TOKEN
     )
-    tokenizer.push_to_hub(
-        MODEL_SAVE_REPO,
-        use_temp_dir=True,
-        # use_auth_token=HUGGINGFACE_AUTH_TOKEN
-    )
+    # tokenizer.push_to_hub(
+    #     MODEL_SAVE_REPO,
+    #     use_temp_dir=True,
+    #     # use_auth_token=HUGGINGFACE_AUTH_TOKEN
+    # )
     # Private일 때
     # model.push_to_hub(
     #     MODEL_SAVE_REPO,
@@ -54,7 +54,7 @@ def check(config):
 
 
     HUGGINGFACE_AUTH_TOKEN = '' # https://huggingface.co/settings/token
-    LOAD_FROM = 'kimcando/final_projects'
+    LOAD_FROM = 'kimcando/para_test_4800'
 
     #######  load from huggingface  #############
     # 만약 private repo면 use_auth_token 사용 필요
@@ -73,5 +73,5 @@ if __name__ == "__main__":
         config = yaml.load(config_file)
 
     agg_config = aggregate_args_config(args, config)
-
-    upload_model(agg_config)
+    check(agg_config)
+    # upload_model(agg_config)

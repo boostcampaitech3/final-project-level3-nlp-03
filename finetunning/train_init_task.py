@@ -1,5 +1,5 @@
 import torch
-import sys
+import sys, os
 import random
 import numpy as np
 import pandas as pd
@@ -11,41 +11,64 @@ from tokenizer import get_tokenizer
 from utils import seed_fix, aggregate_args_config, compute_metrics
 from dataset import MultiSentDataset
 from arguments import get_args
-from models import get_model
-from preprocessing import preprocess_data, tokenizing_data, get_label, preprocess_gen_data
+from models import get_model, get_trained_model, get_trained_local_model
+# from preprocessing import preprocess_data, tokenizing_data, get_label
+from preprocessing import *
 
 
 def main(config):
     device = torch.device('cuda:0' if torch.cuda.is_available() else 'cpu')
-    # data = open(config['TRAIN_DATA']['data_path'], 'r', encoding='utf-8')
-    data = pd.read_csv(config['TRAIN_DATA']['data_path'])
     seed_fix(config['ETC']['seed'])
 
-    # TODO : valid, train 나눈 데이터로 만들어야할 것 같아요
-
     ####### DATA PROCESSING #############
-    # random.shuffle(lines)
-    train_data, test_data = preprocess_gen_data(data)
+    # Data type 따라서
+    # data = open(config['TRAIN_DATA']['data_path'], 'r', encoding='utf-8')
+    # lines = data.readlines()
+    if config['TRAIN_DATA']['data_name'] == 'korsts_raw':
+        train_data = preprocess_korSTS_data(config['TRAIN_DATA']['train_data_path'], train=True)
+        test_data = preprocess_korSTS_data(config['TEST_DATA']['test_data_path'], train=False)
+        train_label = get_label(train_data)
+        test_label = get_label(test_data)
+
+    elif config['TRAIN_DATA']['data_name'] in ['korsts', 'paraKQC', 'gen']:
+        train_data = preprocess_basic(config['TRAIN_DATA']['train_data_path'], train=True)
+        test_data = preprocess_basic(config['TEST_DATA']['test_data_path'], train=False)
+        train_label = get_label(train_data)
+        test_label = get_label(test_data)
+    elif config['TRAIN_DATA']['data_name'] == 'klueSTS':
+        from datasets import load_dataset
+        dataset = load_dataset("klue", "sts")
+        train_data = dataset['train']
+        test_data = dataset['validation']
+        train_label = [labels['binary-label'] for labels in train_data['labels']]
+        test_label = [labels['binary-label'] for labels in test_data['labels']]
+    else:
+        raise NotImplementedError
+
     tokenizer = get_tokenizer(config)
     tokenized_train_sentences = tokenizing_data(train_data,
                                                 tokenizer,
+                                                data_type=config['TRAIN_DATA']['data_name'],
                                                 truncation=config['TOKENIZER']['truncation'],  # default True
                                                 max_length=config['TOKENIZER']['max_length'])  # default 64
 
     tokenized_test_sentences = tokenizing_data(test_data,
                                                tokenizer,
+                                               data_type=config['TRAIN_DATA']['data_name'],
                                                truncation=config['TOKENIZER']['truncation'],  # default True
                                                max_length=config['TOKENIZER']['max_length'])  # default 64
 
-    train_label = get_label(train_data)
-    test_label = get_label(test_data)
+    train_dataset = MultiSentDataset(tokenized_train_sentences, train_label,
+                                     data_type=config['TRAIN_DATA']['data_name'])
+    test_dataset = MultiSentDataset(tokenized_test_sentences, test_label, data_type=config['TRAIN_DATA']['data_name'], )
 
-    train_dataset = MultiSentDataset(tokenized_train_sentences, train_label)
-    test_dataset = MultiSentDataset(tokenized_test_sentences, test_label)
+    # Conf
+    final_output_dir = os.path.join(config['OUTPUT']['model_save'], config['TASK']['task_name'])
+    os.makedirs(final_output_dir, exist_ok=True)
 
     #######  ARGUMENTS  #############
     training_args = TrainingArguments(
-        output_dir=config['OUTPUT']['model_save'],  # output directory
+        output_dir=final_output_dir,  # output directory
         num_train_epochs=config['TRAIN']['num_train_epochs'],  # total number of training epochs
         per_device_train_batch_size=config['TRAIN']['train_bs'],  # batch size per device during training
         per_device_eval_batch_size=config['TRAIN']['eval_bs'],  # batch size for evaluation
@@ -58,13 +81,11 @@ def main(config):
     )
 
     #######  models  #############
-    model = get_model(config)
-    # model_checkpoint = config['MODEL']['model_name']
-    # model_config = AutoConfig.from_pretrained(model_checkpoint)
-    # model_config.num_labels = 2
-    # model = AutoModelForTokenClassification.from_config(model_config)
+    # model = get_trained_model(config, LOAD_NAME='xuio/roberta-sts12',pre_task = 'reg', this_task = 'bin', load_from_huggingface=True)
 
-    # model.parameters
+
+
+    model = get_init_model(model_path, task_type=config['TASK']['task_name'])
     model.to(device)
 
     #######  training  #############
@@ -78,7 +99,9 @@ def main(config):
 
     trainer.train()
     trainer.evaluate(eval_dataset=test_dataset)
-    trainer.save_model(config['OUTPUT']['model_save'])
+    trainer.save_model(final_output_dir)
+    trainer.save_state(final_output_dir)
+    tokenizer.save_pretrained(final_output_dir)
 
 
 if __name__ == "__main__":
@@ -92,7 +115,7 @@ if __name__ == "__main__":
     ## config에 추가되어있는 argparse의 값을 변경하려면 config의 소문자값과 일치시켜주세요!
 
     args = get_args()
-    config_path = './configs/sy_config_korsentence.yaml'# './configs/sy_config.yaml'  # './configs/base_config.yaml'
+    config_path = './configs/data_test_config_base.yaml'  # './configs/base_config.yaml'
 
     ## argparse로 세팅한 값을 config 파일에 업데이트하게 됩니다.
     with open(config_path, 'r') as config_file:
