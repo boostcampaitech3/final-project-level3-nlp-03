@@ -16,21 +16,25 @@ def str2bool(v):
 
 def get_args():
     parser = argparse.ArgumentParser()
+
+    parser.add_argument("--config_path", type=str, default='./configs/first_para.yaml', help="output dir")
+
     # basic environment args & output , logging saving
-    parser.add_argument("--model_save", type=str, default='./results_para_korsentence', help="output dir")
-    parser.add_argument("--loggig_steps", type=int, default=200, help="logging steps")
+    parser.add_argument("--model_name", type=str, default='klue/roberta-large', help="output dir")
+    parser.add_argument("--model_save", type=str, default='./results', help="output dir")
+    parser.add_argument("--logging_steps", type=int, default=100, help="logging steps")
     parser.add_argument("--save_total_limit", type=int, default=2, help="saving limit")
-    parser.add_argument("--save_steps", type=int, default=800, help="saving steps")
-    parser.add_argument("--eval_steps", type=int, default=200, help="evaluation steps")
-    parser.add_argument("--evaluation_strategy", type=str, default='epoch', help="evaluation strategy")
+    parser.add_argument("--save_steps", type=int, default=100, help="saving steps")
+    parser.add_argument("--eval_steps", type=int, default=100, help="evaluation steps")
+    parser.add_argument("--evaluation_strategy", type=str, default='steps', help="evaluation strategy")
 
 
 
-    parser.add_argument("--num_train_epochs", type=int, default=2, help="training epochs")
-    parser.add_argument("--train_bs", type=int, default=64, help="batch size per device during training")
-    parser.add_argument("--eval_bs", type=int, default=64, help="batch size per device during training")
+    parser.add_argument("--num_train_epochs", type=int, default=1, help="training epochs")
+    parser.add_argument("--train_bs", type=int, default=32, help="batch size per device during training")
+    parser.add_argument("--eval_bs", type=int, default=32, help="batch size per device during training")
 
-    parser.add_argument("--lr", type=float, default=2e-5, help="learning rate (default:5e-5)")
+    parser.add_argument("--lr", type=float, default=1e-5, help="learning rate (default:5e-5)")
     args = parser.parse_args()
     return args
 
