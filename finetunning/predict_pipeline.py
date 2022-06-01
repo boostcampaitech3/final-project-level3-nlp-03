@@ -63,7 +63,10 @@ def model_test_bin(csv_save_name):
     tokenizer = AutoTokenizer.from_pretrained(TOKENIZED_FROM)
 
     model.eval()
-    pairs = pd.read_csv(VALID_DATA_PATH).drop(columns=['Unnamed: 0.1', 'Unnamed: 0'])
+    try:
+        pairs = pd.read_csv(VALID_DATA_PATH).drop(columns=['Unnamed: 0.1', 'Unnamed: 0'])
+    except:
+        pairs = pd.read_csv(VALID_DATA_PATH)
     sent_a = pairs['sent_a'].tolist()
     sent_b = pairs['sent_b'].tolist()
     org_labels = pairs['labels'].tolist()
@@ -102,7 +105,10 @@ def model_test_reg(csv_save_name):
     tokenizer = AutoTokenizer.from_pretrained(TOKENIZED_FROM)
 
     model.eval()
-    pairs = pd.read_csv(VALID_DATA_PATH).drop(columns=['Unnamed: 0.1', 'Unnamed: 0'])
+    try:
+        pairs = pd.read_csv(VALID_DATA_PATH).drop(columns=['Unnamed: 0.1', 'Unnamed: 0'])
+    except:
+        pairs = pd.read_csv(VALID_DATA_PATH)
     sent_a = pairs['sent_a'].tolist()
     sent_b = pairs['sent_b'].tolist()
     org_labels = pairs['labels'].tolist()
@@ -140,11 +146,11 @@ def model_test_reg(csv_save_name):
 if __name__=='__main__':
 
     # pipeline_test_bin()
-    VALID_DATA_PATH = '/opt/ml/projects/tunning_data/validation_v1.csv'
-    SAVE_BASE_PATH = '/opt/ml/projects/final-project-level3-nlp-03/finetunning/inference_results'
-
+    VALID_DATA_PATH = '/opt/ml/final-project-level3-nlp-03/finetunning/Dataset/validation_v1.csv'
+    SAVE_BASE_PATH = '/opt/ml/final-project-level3-nlp-03/finetunning/inference_results'
+    os.makedirs(SAVE_BASE_PATH,exist_ok=True)
     TOKENIZED_FROM = 'klue/bert-base'
-    LOAD_FROM = '/opt/ml/projects/final-project-level3-nlp-03/finetunning/results/gen_second'
+    LOAD_FROM = 'klue/bert-base' #'/opt/ml/projects/final-project-level3-nlp-03/finetunning/results/gen_second'
     csv_save_name = 'klueSTS_reg_1000_gen_bin_final.csv'
     # model_test_reg(csv_save_name)
     model_test_bin(csv_save_name)
