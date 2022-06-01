@@ -18,8 +18,6 @@ from datasets import load_dataset
 
 import wandb
 
-LOAD_FROM = 'klue/bert-base' # '/opt/ml/projects/final-project-level3-nlp-03/finetunning/results/klueSTS_first/checkpoint-1000'
-
 def main(config):
     device = torch.device('cuda:0' if torch.cuda.is_available() else 'cpu')
     seed_fix(config['ETC']['seed'])
@@ -139,6 +137,7 @@ if __name__ == "__main__":
     ## e.g, args.test -> config['test']
 
     ## config에 추가되어있는 argparse의 값을 변경하려면 config의 소문자값과 일치시켜주세요!
+    LOAD_FROM = 'klue/bert-base'  # '/opt/ml/projects/final-project-level3-nlp-03/finetunning/results/klueSTS_first/checkpoint-1000'
 
     args = get_args()
     config_path = args.config_path  # './configs/base_config.yaml'

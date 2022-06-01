@@ -20,11 +20,10 @@ LABEL_MAP = {
     'LABEL_1' : '1', # similar
 }
 
-# LOAD_FROM = '/opt/ml/projects/final-project-level3-nlp-03/finetunning/results/klueSTS' # reg
 
 def pipeline_test_bin():
     # 속도 최적화 고민이 필요할 것 같습니다.
-    pairs = pd.read_csv('/opt/ml/projects/tunning_data/validation_v1.csv').drop(columns=['Unnamed: 0.1', 'Unnamed: 0'])
+    pairs = pd.read_csv(VALID_DATA_PATH).drop(columns=['Unnamed: 0.1', 'Unnamed: 0'])
     pipe = pipeline('text-classification',
                     model= LOAD_FROM,
                     device = 0) # CUDA 숫자로 넣어줘야함
@@ -55,7 +54,7 @@ def pipeline_test_bin():
         data['pred_labels'].append(int(LABEL_MAP[out['label']]))
 
     return_df = pd.DataFrame(data)
-    return_df.to_csv(os.path.join('/opt/ml/projects/final-project-level3-nlp-03/finetunning/inference_results','korSTS.csv'))
+    return_df.to_csv(os.path.join(SAVE_BASE_PATH,'korSTS.csv'))
 
 def model_test_bin(csv_save_name):
     device = torch.device("cuda" if torch.cuda.is_available() else "cpu")
@@ -64,7 +63,7 @@ def model_test_bin(csv_save_name):
     tokenizer = AutoTokenizer.from_pretrained(TOKENIZED_FROM)
 
     model.eval()
-    pairs = pd.read_csv('/opt/ml/projects/tunning_data/validation_v1.csv').drop(columns=['Unnamed: 0.1', 'Unnamed: 0'])
+    pairs = pd.read_csv(VALID_DATA_PATH).drop(columns=['Unnamed: 0.1', 'Unnamed: 0'])
     sent_a = pairs['sent_a'].tolist()
     sent_b = pairs['sent_b'].tolist()
     org_labels = pairs['labels'].tolist()
@@ -94,7 +93,7 @@ def model_test_bin(csv_save_name):
         pred_scores = probs[torch.arange(len(labels)), [1]*len(labels)]
     data = {'sent_a':sent_a, 'sent_b':sent_b, 'labels':org_labels,'pred_labels':labels, 'scores':pred_scores}
     df = pd.DataFrame(data)
-    df.to_csv(os.path.join('/opt/ml/projects/final-project-level3-nlp-03/finetunning/inference_results',csv_save_name))
+    df.to_csv(os.path.join(SAVE_BASE_PATH,csv_save_name))
 
 
 def model_test_reg(csv_save_name):
@@ -103,7 +102,7 @@ def model_test_reg(csv_save_name):
     tokenizer = AutoTokenizer.from_pretrained(TOKENIZED_FROM)
 
     model.eval()
-    pairs = pd.read_csv('/opt/ml/projects/tunning_data/validation_v1.csv').drop(columns=['Unnamed: 0.1', 'Unnamed: 0'])
+    pairs = pd.read_csv(VALID_DATA_PATH).drop(columns=['Unnamed: 0.1', 'Unnamed: 0'])
     sent_a = pairs['sent_a'].tolist()
     sent_b = pairs['sent_b'].tolist()
     org_labels = pairs['labels'].tolist()
@@ -135,12 +134,15 @@ def model_test_reg(csv_save_name):
         data.update({f'thr_{thr}':new})
 
     df = pd.DataFrame(data)
-    df.to_csv(os.path.join('/opt/ml/projects/final-project-level3-nlp-03/finetunning/inference_results',csv_save_name))
+    df.to_csv(os.path.join(SAVE_BASE_PATH,csv_save_name))
 
 
 if __name__=='__main__':
 
     # pipeline_test_bin()
+    VALID_DATA_PATH = '/opt/ml/projects/tunning_data/validation_v1.csv'
+    SAVE_BASE_PATH = '/opt/ml/projects/final-project-level3-nlp-03/finetunning/inference_results'
+
     TOKENIZED_FROM = 'klue/bert-base'
     LOAD_FROM = '/opt/ml/projects/final-project-level3-nlp-03/finetunning/results/gen_second'
     csv_save_name = 'klueSTS_reg_1000_gen_bin_final.csv'
