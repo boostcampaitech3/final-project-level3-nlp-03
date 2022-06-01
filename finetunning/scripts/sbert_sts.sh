@@ -1,0 +1,1 @@
+python con_training_sts.py --model klue/bert-base --batch 32 --evaluation_steps 1000 --epochs 4
