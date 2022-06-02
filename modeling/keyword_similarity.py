@@ -7,6 +7,8 @@ import pandas as pd
 import numpy as np
 import random
 
+from context_preprocess import preprocess_context
+
 import re
 
 # 띄어쓰기
@@ -49,6 +51,7 @@ class Keyword_similarity:
     ## 키워드 하나에 대해서 답안들에 대해 조사한다.
     def get_keyword_score_list(self, keyword, sentence_list):
         idx_list = []
+        # preprocess_context(sentence_list)
         for sentence in sentence_list:
             idx_list.append(self.keyword_one_sentence(keyword, sentence))
         
