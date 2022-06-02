@@ -7,15 +7,22 @@ import pandas as pd
 import numpy as np
 import random
 
+from context_preprocess import preprocess_context
+
 import re
-# 초기화 및 모델 학습
-from gensim.models import word2vec
+
 # 띄어쓰기
 from pykospacing import Spacing
 # 마춤뻡 검사기
 from hanspell import spell_checker
 
 from soynlp.normalizer import *
+
+import gensim 
+import gensim.models as g
+
+model_name = 'fast_text_ko'
+model = g.Doc2Vec.load(model_name)
 
 import re
 
@@ -44,6 +51,7 @@ class Keyword_similarity:
     ## 키워드 하나에 대해서 답안들에 대해 조사한다.
     def get_keyword_score_list(self, keyword, sentence_list):
         idx_list = []
+        # preprocess_context(sentence_list)
         for sentence in sentence_list:
             idx_list.append(self.keyword_one_sentence(keyword, sentence))
         
@@ -71,3 +79,26 @@ class Keyword_similarity:
                 word_list.append(pos_word)
             
         return cosine_list
+
+def main(keyword_list, sentence_list, KS):
+    
+    return KS.keyword_score(keyword_list, sentence_list)
+
+if __name__ == '__main__':
+    # 파일 불러오기
+    sentence_data_path = args.sentence_data_path
+    sentence_file_name = '../data/' + args.sentence_file_name
+    data = pd.read_csv(sentence_file_name, encoding='utf-8')
+    sentence_list = data['sentence'].tolist()
+
+    keyword_data_path = args.keyword_data_path
+    keyword_file_name = '../data/' + args.keyword_file_name
+    data = pd.read_csv(keyword_file_name, encoding='utf-8')
+    keyword_list = data['keyword'].tolist()
+
+    # 모델 불러오기
+
+    model_name = args.model_name
+    model = g.Doc2Vec.load(model_name)
+    Fast_KS = Keyword_similarity(model, 0.35, pos_tagger)
+    main(sentence_list, keyword_list, Fast_KS)
