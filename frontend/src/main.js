@@ -5,8 +5,14 @@ import App from './App.vue'
 import router from './router'
 import store from './store'
 
+import axios from 'axios'
+
 Vue.use(ElementUI);
 Vue.config.productionTip = false
+
+//axios setup
+Vue.prototype.$http = axios
+
 
 new Vue({
   router,
