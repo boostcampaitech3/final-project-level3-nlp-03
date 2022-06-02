@@ -19,8 +19,7 @@ def sentences_predict(model, tokenizer, sent_A, sent_B):
         max_length=64,
     )
     tokenized_sent.to("cuda:0")
-    # print(tokenized_sent)
-    with torch.no_grad():  # 그라디엔트 계산 비활성화
+    with torch.no_grad():
         outputs = model(
             input_ids=tokenized_sent["input_ids"],
             attention_mask=tokenized_sent["attention_mask"],
@@ -44,8 +43,6 @@ def load_refine_json_data(data):
         student_id.append(student_pair[0])
         answers.append(student_pair[1])
 
-    # answers = pd.read_csv("./example.csv")["answer"].to_list()  # example
-    # tmp. 실제 json 데이터 찾아서 읽어야 함
     gold_answer = [data["gold_answer"]] * len(answers)
     return student_id, answers, gold_answer
 
@@ -89,7 +86,6 @@ def inference_model(data):
     new_problem = []
 
     for i, problem in enumerate(data["problem"]):
-        # for i, problem in range(data["problem"][0]):
         problem_idx = i
         student_id, answers, gold_answer = load_refine_json_data(problem)
         result, logits = sentences_predict(model, tokenizer, answers, gold_answer)
@@ -101,7 +97,6 @@ def inference_model(data):
         individual_df = make_problem_df(problem, i, sim_score, student_id, answers)
         new_problem.append(individual_df)
 
-        break  # 예시가 하나만 있기 때문에 들어가있는 break. 실제 json을 넘겨줄 시 지워야 한다
     output_dict["problem"] = new_problem
     output_json = json.dumps(output_dict)
     # with open("./result.json", "w") as f:  # result 눈으로 확인하는 용도
