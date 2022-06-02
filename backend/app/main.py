@@ -3,34 +3,39 @@ from unicodedata import name
 from pydantic import BaseModel
 from fastapi import FastAPI, File, UploadFile, Form
 
+
+from util.read_input import preprocess
+
 app = FastAPI()
+
+class StudentAnswer(BaseModel):
+    student_id : str
+    answer : str
 
 class Problem(BaseModel):
     question: str
-    answer: str
+    gold_answer: str
     keywords: list
-
+    answers : List[StudentAnswer]
 
 
 class ProblemList(BaseModel):
     data: List[Problem]
 
 
-@app.get("/")
+@app.get("/api/")
 def read_root():
     return "hello gompada"
 
 
-@app.post("/input")
+@app.post("/api/input")
 def read_item(data : ProblemList):
 
-  return data
+    a = preprocess(data)
 
-@app.post("/uploadfiles/")
-async def create_upload_files(
-    files: List[UploadFile] = File(description="Multiple files as UploadFile"),
-):
-    return {"filenames": [file.filename for file in files]}
+    return data
+
+
 
 
 #initial
