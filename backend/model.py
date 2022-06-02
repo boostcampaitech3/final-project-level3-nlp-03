@@ -65,7 +65,7 @@ def make_problem_df(problem, problem_idx, sim_score, student_id, answers):
         check_score, match_info = checker(answers[i], new_data["keywords"])
         result_dict["student_id"] = student_id[i]
         result_dict["answer"] = answers[i]
-        result_dict["sim_score"] = sim_score[i]
+        result_dict["sim_score"] = round(sim_score[i].astype(np.float64), 4)
         result_dict["keyword_score"] = check_score
         result_dict["total_score"] = round(sim_score[i] + check_score, 4)
         result_dict["match_info"] = match_info
@@ -103,9 +103,9 @@ def inference_model(data):
 
         break  # 예시가 하나만 있기 때문에 들어가있는 break. 실제 json을 넘겨줄 시 지워야 한다
     output_dict["problem"] = new_problem
-    output_json = json.dumps(str(output_dict))
-    with open("./result.json", "w") as f:  # result 눈으로 확인하는 용도
-        json.dump(str(output_dict), f, ensure_ascii=False, indent=4)
+    output_json = json.dumps(output_dict)
+    # with open("./result.json", "w") as f:  # result 눈으로 확인하는 용도
+    #     json.dump(output_dict, f, ensure_ascii=False, indent=4)
     return output_json
 
 
