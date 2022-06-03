@@ -149,31 +149,27 @@ def inference_sbert_model(data):
 
     output_dict = {}
 
-    # subject = data["subject"]  # 과목
-    # output_dict["subject"] = data["subject"]
+    subject = data["subject"]  # 과목
+    output_dict["subject"] = data["subject"]
     new_problem = []
-    gold_answer = ['제과점끼리 경쟁 심화가 커질 수 있다.', '맛이 더 좋아질 수는 있따']
-    answers = ['제과점끼리 경쟁이 작아질 수 있다.', '더 좋은 맛을 누릴 수 있다'] # 경쟁이 커질 수 있다로 하면 낮게나옴
-    # for i, problem in enumerate(data["problem"]):
-    for i, problem in enumerate([1,3]):
+    # gold_answer = ['제과점끼리 경쟁 심화가 커질 수 있다.', '맛이 더 좋아질 수는 있따']
+    # answers = ['제과점끼리 경쟁이 작아질 수 있다.', '더 좋은 맛을 누릴 수 있다'] # 경쟁이 커질 수 있다로 하면 낮게나옴
+    for problem_idx, problem in enumerate(data["problem"]):
+    # for i, problem in enumerate([1,3]):
         # for i, problem in range(data["problem"][0]):
-        problem_idx = i
-        #student_id, answers, gold_answer = load_refine_json_data(problem)
+        student_id, answers, gold_answer = load_refine_json_data(problem)
 
         right_ans_emb = sbert_model.encode(gold_answer)
         stu_ans_emb = sbert_model.encode(answers)
         sim_score = sentences_sbert_predict(right_ans_emb, stu_ans_emb)
-
-        # result, logits = sentences_predict(model, tokenizer, answers, gold_answer)
-
-        individual_df = make_problem_df(problem, i, sim_score, student_id, answers)
+        individual_df = make_problem_df(problem, problem_idx, sim_score, student_id, answers)
         new_problem.append(individual_df)
 
         break  # 예시가 하나만 있기 때문에 들어가있는 break. 실제 json을 넘겨줄 시 지워야 한다
     output_dict["problem"] = new_problem
     output_json = json.dumps(output_dict)
-    # with open("./result.json", "w") as f:  # result 눈으로 확인하는 용도
-    #     json.dump(output_dict, f, ensure_ascii=False, indent=4)
+    with open("./result.json", "w") as f:  # result 눈으로 확인하는 용도
+        json.dump(output_dict, f, ensure_ascii=False, indent=4)
     return output_json
 
 def output_sbert():
