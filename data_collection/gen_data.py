@@ -7,11 +7,11 @@ class RuleBasedGenerator:
     TEMP1 = ['sub', '조사', 'verb']
     JOSA_LIST = ['은','는', '이', '가'] # 말이 안되더라도
     NEG_LIST = ['안', '아니', '못']
-    def __init__(self, sub_df, verb_df, gen_pos_pair=2, gen_neg_pair=2, final_column_version='v4'):
+    def __init__(self, sub_df, verb_df, gen_pos_pair=2, gen_neg_pair=2, final_column_version='v4',antonym=True):
         self.sub_df = sub_df
         self.verb_df = verb_df
         self.final_column_version = final_column_version
-
+        self.use_antonym = antonym
         self.gen_pos_pair = gen_pos_pair
         self.gen_neg_pair = gen_neg_pair
 
@@ -94,7 +94,7 @@ class RuleBasedGenerator:
 
                 elif temp == 'verb':
 
-                    strs += self.verb_df['유의어'][verb_idx][0] # 유의어 들 중 첫번째 단어가 그래도 제일 유사하니까 첫번째 유의어만 일단 선택
+                    strs += eval(self.verb_df['유의어'][verb_idx])[0] # 유의어 들 중 첫번째 단어가 그래도 제일 유사하니까 첫번째 유의어만 일단 선택
             total_list.append(strs)
 
         # 만들어진 Pair 중 설정한 값만큼만 반환
@@ -134,10 +134,10 @@ class RuleBasedGenerator:
         total_list.append(strs)
 
         # TODO 동사의 반의어 선택! 또는 다른 단어
-        antonym = False
-        if antonym:
+        #antonym = False
+        if self.use_antonym:
             if not pd.isna(self.verb_df['반의어'][verb_idx]):
-                breakpoint()
+                # breakpoint()
                 strs = ''
                 for temp in self.TEMP1:
                     if temp == 'sub':
@@ -148,7 +148,7 @@ class RuleBasedGenerator:
                         strs += josa + ' '
 
                     elif temp == 'verb':
-                        strs += self.verb_df['반의어'][verb_idx][0] # 유의어 들 중 첫번째 단어가 그래도 제일 유사하니까 첫번째 유의어만 일단 선택
+                        strs += self.verb_df['반의어'][verb_idx] # 유의어 들 중 첫번째 단어가 그래도 제일 유사하니까 첫번째 유의어만 일단 선택
                 total_list.append(strs)
 
         # 만들어진 Pair 중 설정한 값만큼만 반환
@@ -183,7 +183,7 @@ class RuleBasedGenerator:
         # 하지만 실제 데이터로 사용하려면..
         csv_data = {'sent_a':[],
                           'sent_b':[],
-                          'label':[],
+                          'labels':[],
                           'org_sents':[]} # org_sents는 식별 인자용
         for itr in range(num_itr):
             pair_out = self.make_pairs()
@@ -195,26 +195,26 @@ class RuleBasedGenerator:
             for pos_idx in range(len(pair_out['pos_pairs'])):
                 csv_data['sent_a'].append(org_sents)
                 csv_data['sent_b'].append(pair_out['pos_pairs'][pos_idx])
-                csv_data['label'].append(1)
+                csv_data['labels'].append(1)
                 csv_data['org_sents'].append(org_sents)
 
             for neg_idx in range(len(pair_out['neg_pairs'])):
                 csv_data['sent_a'].append(org_sents)
                 csv_data['sent_b'].append(pair_out['neg_pairs'][neg_idx])
-                csv_data['label'].append(0)
+                csv_data['labels'].append(0)
                 csv_data['org_sents'].append(org_sents)
 
             # 좀더 생각한 조합 : pos<->pos, neg<->neg, pos<->neg
             sent_a, sent_b = np.random.choice(pair_out['pos_pairs'], 2)
             csv_data['sent_a'].append(sent_a)
             csv_data['sent_b'].append(sent_b)
-            csv_data['label'].append(1)
+            csv_data['labels'].append(1)
             csv_data['org_sents'].append(org_sents)
 
             sent_a, sent_b = np.random.choice(pair_out['neg_pairs'], 2)
             csv_data['sent_a'].append(sent_a)
             csv_data['sent_b'].append(sent_b)
-            csv_data['label'].append(1)
+            csv_data['labels'].append(1)
             csv_data['org_sents'].append(org_sents)
 
             # 다른 pair에 대한 데이터가 더 만들어지게 될 것. -> 채점 입장에서 같은 것보다 얼마나 다르냐가 더 중요하니 그런 데이터를 더 모은다고 볼 수 있을까?
@@ -222,7 +222,7 @@ class RuleBasedGenerator:
                 for neg_idx in range(len(pair_out['neg_pairs'])):
                     csv_data['sent_a'].append(pair_out['pos_pairs'][pos_idx])
                     csv_data['sent_b'].append(pair_out['neg_pairs'][neg_idx])
-                    csv_data['label'].append(0)
+                    csv_data['labels'].append(0)
                     csv_data['org_sents'].append(org_sents)
         # breakpoint()
         df = pd.DataFrame(csv_data)
@@ -231,13 +231,22 @@ class RuleBasedGenerator:
 
 if __name__=='__main__':
     import pandas as pd
-    sub_1 = pd.read_csv('/opt/ml/projects/final-project-level3-nlp-03/data_collection/preprocessed_NNG.csv').drop(columns=['Unnamed: 0'])
-    sub_2 = pd.read_csv('/opt/ml/projects/final-project-level3-nlp-03/data_collection/preprocessed_NNP.csv').drop(columns=['Unnamed: 0'])
+    # sub_1 = pd.read_csv('/opt/ml/projects/final-project-level3-nlp-03/data_collection/preprocessed_NNG.csv').drop(columns=['Unnamed: 0'])
+    # sub_2 = pd.read_csv('/opt/ml/projects/final-project-level3-nlp-03/data_collection/preprocessed_NNP.csv').drop(columns=['Unnamed: 0'])
+    #
+    # verb_1 = pd.read_csv('/opt/ml/projects/final-project-level3-nlp-03/data_collection/preprocessed_VV.csv').drop(columns=['Unnamed: 0'])
+    # verb_2 = pd.read_csv('/opt/ml/projects/final-project-level3-nlp-03/data_collection/preprocessed_VA.csv').drop(columns=['Unnamed: 0'])
+    # sub_df = pd.concat([sub_1, sub_2],ignore_index=True)
+    # verb_df = pd.concat([verb_1, verb_2],ignore_index=True)
 
-    verb_1 = pd.read_csv('/opt/ml/projects/final-project-level3-nlp-03/data_collection/preprocessed_VV.csv').drop(columns=['Unnamed: 0'])
-    verb_2 = pd.read_csv('/opt/ml/projects/final-project-level3-nlp-03/data_collection/preprocessed_VA.csv').drop(columns=['Unnamed: 0'])
-    sub_df = pd.concat([sub_1, sub_2],ignore_index=True)
-    verb_df = pd.concat([verb_1, verb_2],ignore_index=True)
-    generator = RuleBasedGenerator(sub_df, verb_df)
-    generator.gen_data()
+  #  sub_1 = pd.read_csv('/opt/ml/projects/final-project-level3-nlp-03/data_collection/preprocessed_NNG.csv').drop(columns=['Unnamed: 0'])
+    sub_2 = pd.read_csv('/opt/ml/projects/final-project-level3-nlp-03/data_collection/preprocessed_NNG_v5.csv').drop(columns=['Unnamed: 0'])
+
+  #  verb_1 = pd.read_csv('/opt/ml/projects/final-project-level3-nlp-03/data_collection/preprocessed_VV.csv').drop(columns=['Unnamed: 0'])
+    verb_2 = pd.read_csv('/opt/ml/projects/final-project-level3-nlp-03/data_collection/preprocessed_VA_v5.csv').drop(columns=['Unnamed: 0'])
+  #  sub_df = pd.concat([sub_1, sub_2],ignore_index=True)
+  #  verb_df = pd.concat([verb_1, verb_2],ignore_index=True)
+
+    generator = RuleBasedGenerator(sub_2, verb_2,final_column_version='v5',antonym=True)
+    generator.gen_data(num_itr=1800)
     print('Finished!')
