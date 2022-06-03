@@ -6,6 +6,8 @@ from transformers import AutoModelForSequenceClassification, AutoTokenizer
 from sentence_transformers import SentenceTransformer
 from keyword_checker import checker
 
+from numpy import dot
+from numpy.linalg import norm
 
 def sentences_predict(model, tokenizer, sent_A, sent_B):
     model.eval()
@@ -114,6 +116,74 @@ def output():
         json_data = json.load(f)
     inference_model(json_data)
 
+def get_similarity(ans, right_ans, use="cosine"):
+    # Cosine Similarity
+    if use == "cosine":
+        return dot(ans, right_ans) / (norm(ans) * norm(right_ans))
 
-output()
+    # Euclidean
+    if use == "euclidean":
+        if norm(ans - right_ans) == norm(ans - right_ans):
+            return norm(ans - right_ans)
+        else:
+            return -1
+
+    # Pearson
+    if use == "pearson":
+        return dot((ans - np.mean(ans)), (right_ans - np.mean(right_ans))) / (
+                    (norm(ans - np.mean(ans))) * (norm(right_ans - np.mean(right_ans))))
+
+
+def sentences_sbert_predict(emb_a, emb_b):
+    results = []
+    for idx, (a, b) in enumerate(zip(emb_a, emb_b)):
+        sim_score = get_similarity(a, b, use="cosine")
+        results.append(round(sim_score,2))
+    return results
+
+def inference_sbert_model(data):
+    LOAD_FROM = 'kimcando/ko-paraKQC-demo2'
+    sbert_model = SentenceTransformer(LOAD_FROM)
+
+    sbert_model.cuda()
+
+    output_dict = {}
+
+    # subject = data["subject"]  # 과목
+    # output_dict["subject"] = data["subject"]
+    new_problem = []
+    gold_answer = ['제과점끼리 경쟁 심화가 커질 수 있다.', '맛이 더 좋아질 수는 있따']
+    answers = ['제과점끼리 경쟁이 작아질 수 있다.', '더 좋은 맛을 누릴 수 있다'] # 경쟁이 커질 수 있다로 하면 낮게나옴
+    # for i, problem in enumerate(data["problem"]):
+    for i, problem in enumerate([1,3]):
+        # for i, problem in range(data["problem"][0]):
+        problem_idx = i
+        #student_id, answers, gold_answer = load_refine_json_data(problem)
+
+        right_ans_emb = sbert_model.encode(gold_answer)
+        stu_ans_emb = sbert_model.encode(answers)
+        sim_score = sentences_sbert_predict(right_ans_emb, stu_ans_emb)
+
+        # result, logits = sentences_predict(model, tokenizer, answers, gold_answer)
+
+        individual_df = make_problem_df(problem, i, sim_score, student_id, answers)
+        new_problem.append(individual_df)
+
+        break  # 예시가 하나만 있기 때문에 들어가있는 break. 실제 json을 넘겨줄 시 지워야 한다
+    output_dict["problem"] = new_problem
+    output_json = json.dumps(output_dict)
+    # with open("./result.json", "w") as f:  # result 눈으로 확인하는 용도
+    #     json.dump(output_dict, f, ensure_ascii=False, indent=4)
+    return output_json
+
+def output_sbert():
+    with open("./example.json", "r") as f:
+        json_data = json.load(f)
+    inference_sbert_model(json_data)
+
+
+if __name__=='__main__':
+    # inference_sbert_model(None)
+    output_sbert()
+    output()
 
