@@ -42,7 +42,7 @@ logging.info("Read AllNLI train dataset")
 label2int = {"contradiction": 0, "entailment": 1, "neutral": 2}
 train_samples = []
 
-with open('./Dataset/snli_1.0_train.ko.tsv', "rt", encoding="utf-8") as fIn:
+with open('../Dataset/snli_1.0_train.ko.tsv', "rt", encoding="utf-8") as fIn:
     lines = fIn.readlines()
     for line in lines:
         s1, s2, label = line.split('\t')
@@ -58,7 +58,7 @@ train_loss = losses.SoftmaxLoss(model=model, sentence_embedding_dimension=model.
 logging.info("Read STSbenchmark dev dataset")
 dev_samples = []
 
-with open('./Dataset/tune_sts_dev.tsv', 'rt', encoding='utf-8') as fIn:
+with open('../Dataset/tune_sts_dev.tsv', 'rt', encoding='utf-8') as fIn:
     lines = fIn.readlines()
     for line in lines:
         s1, s2, score = line.split('\t')
@@ -91,7 +91,7 @@ model.fit(train_objectives=[(train_dataloader, train_loss)],
 ##############################################################################
 
 test_samples = []
-with open('./Dataset/tune_sts_test.tsv', 'rt', encoding='utf-8') as fIn:
+with open('../Dataset/tune_sts_test.tsv', 'rt', encoding='utf-8') as fIn:
     lines = fIn.readlines()
     for line in lines:
         s1, s2, score = line.split('\t')
