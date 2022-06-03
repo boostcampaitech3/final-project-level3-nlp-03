@@ -45,16 +45,29 @@ class Keyword_similarity:
         if type(doc) is not str:
             return []
         return ['/'.join(t) for t in self.pos_tagger.pos(doc, norm=True, stem=True)]
+    
+    def get_keyword_score(self, keyword_list, sentence_list):
+        results = self.keywords_sentences(keyword_list, sentence_list)
+        
+        keyword_num = len(results.keys())
+        sentence_num = len(results.values())
+        
+        keyword_score = []
+        for keyword, students in results.items():
+            for idx, sentence in students.items():    
+                keyword_score.append(len(sentence[0]))
+        return results, keyword_score
+        
 
-    def keyword_score(self, keyword_list, sentence_list):
+    def keywords_sentences(self, keyword_list, sentence_list):
         keyword_dict = {}
         for idx, keyword in enumerate(keyword_list):
-            keyword_dict[f"keyword_{idx}"] = self.get_keyword_score_list(keyword, sentence_list)
+            keyword_dict[f"keyword_{idx}"] = self.keyword_sentences(keyword, sentence_list)
 
         return keyword_dict
 
     ## 키워드 하나에 대해서 답안들에 대해 조사한다.
-    def get_keyword_score_list(self, keyword, sentence_list):
+    def keyword_sentences(self, keyword, sentence_list):
         sentence_dict = {}
         for idx, sentence in enumerate(sentence_list):
             sentence_dict[f'student_{idx}'] = self.keyword_one_sentence(keyword, sentence)
@@ -77,7 +90,7 @@ class Keyword_similarity:
             pos_word = pos_tagger.pos(word)            
             # pos_word = word
             for split_word in pos_word:             
-                if split_word[1] in ['Noun', 'Verb', 'Adjective', 'Adverb']:
+                if split_word[1] in ['Noun']:
                 # if split_word[1] in ['Noun']:
                     try: 
                         word_vec = self.model.wv.get_vector(split_word[0])
