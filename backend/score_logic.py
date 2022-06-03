@@ -2,6 +2,9 @@
 
 def compute_final_score(key_score:float , sim_score:float , alpha=0.5, mode='continuous',
                         sim_upper_threhold=0.8, sim_low_threshold=0.2):
+    if sim_score <= 0:
+        # cos similarity 경우 음의 값으로도 측정됨
+        sim_score = 0
     assert 0<= key_score <=1 and 0<=sim_score<=1
     # 0<=key_score+ sim_score <=1 로 만들기 위해
     if mode == 'continuous':
