@@ -8,7 +8,6 @@ import yaml
 from transformers import Trainer,TrainingArguments, AutoConfig
 from tokenizer import get_tokenizer
 
-from utils import seed_fix, aggregate_args_config, compute_metrics
 from dataset import MultiSentDataset
 from arguments import get_args
 from models import get_model
@@ -50,6 +49,22 @@ def upload_model(config):
     #     use_auth_token=HUGGINGFACE_AUTH_TOKEN
     # )
 
+def upload_sentence_transformer(config):
+    HUGGINGFACE_AUTH_TOKEN = '' # https://huggingface.co/settings/token
+    MODEL_SAVE_REPO = 'ko-paraKQC-demo2'  # ex) 'my-bert-fine-tuned'
+    MODEL_SAVED_PATH =  '/opt/ml/projects/final-project-level3-nlp-03/finetunning/output/paraKQC-ko' # "klue/bert-base"#"/opt/ml/projects/final-project-level3-nlp-03/modeling/results/checkpoint-1000"
+
+    # 학습완료된 모델과 토크나이저 파일 로드
+    from sentence_transformers import SentenceTransformer
+    model = SentenceTransformer(MODEL_SAVED_PATH)
+    model.save_to_hub(repo_name=MODEL_SAVE_REPO)
+
+def check_sentence_transforemrs(config):
+    from sentence_transformers import SentenceTransformer
+    MODEL_SAVE_REPO = 'kimcando/ko-paraKQC-demo2'
+    model = SentenceTransformer(MODEL_SAVE_REPO)
+    print('done!')
+
 def check(config):
 
 
@@ -66,14 +81,9 @@ def check(config):
 
 
 if __name__ == "__main__":
-    args = get_args()
-    config_path = './configs/base_config.yaml'
-
-    ## argparse로 세팅한 값을 config 파일에 업데이트하게 됩니다.
-    with open(config_path, 'r') as config_file:
-        config = yaml.load(config_file)
-
-    agg_config = aggregate_args_config(args, config)
+    agg_config = None
 
     # upload_model(agg_config)
-    check(agg_config)
+    # check(agg_config)
+    # upload_sentence_transformer(agg_config)
+    check_sentence_transforemrs(agg_config)

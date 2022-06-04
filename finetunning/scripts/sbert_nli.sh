@@ -1,1 +1,1 @@
-python training_nli_sbert.py --model klue/bert-base --batch 32 --evaluation_steps 1000 --epochs 1
+python train_nli_sbert.py --model klue/bert-base --batch 32 --evaluation_steps 1000 --epochs 1

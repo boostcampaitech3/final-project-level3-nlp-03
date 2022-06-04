@@ -67,9 +67,14 @@ def model_test_bin(csv_save_name):
         pairs = pd.read_csv(VALID_DATA_PATH).drop(columns=['Unnamed: 0.1', 'Unnamed: 0'])
     except:
         pairs = pd.read_csv(VALID_DATA_PATH)
+
+
     sent_a = pairs['sent_a'].tolist()
     sent_b = pairs['sent_b'].tolist()
-    org_labels = pairs['labels'].tolist()
+    try:
+        org_labels = pairs['labels'].tolist()
+    except:
+        org_labels = pairs['Labels'].tolist()
 
     tokenized_sent = tokenizer(
             sent_a,
@@ -87,7 +92,9 @@ def model_test_bin(csv_save_name):
             attention_mask=tokenized_sent['attention_mask'],
             token_type_ids=tokenized_sent['token_type_ids']
             )
-
+        # 0.2 0.8 -> 1 -> (지금) 0.8
+        # 0.1 0.9 - >1 -> (지금) 0.9
+        # 0.7 0.3 -> 0 -> (지금) 0.3
         logits = outputs[0]
         probs = F.softmax(logits, dim=1).cpu()
         labels = torch.argmax(probs, dim=1)
@@ -142,18 +149,53 @@ def model_test_reg(csv_save_name):
     df = pd.DataFrame(data)
     df.to_csv(os.path.join(SAVE_BASE_PATH,csv_save_name))
 
+def check_bin_acc(df):
+    threshold = [0.6, 0.7, 0.8, 0.9, 0.95]
+    for thr in threshold:
+        cnt = 0
+
+        for idx in range(len(df)):
+            val = df['scores'][idx]
+            if val >= thr:
+                label = 1
+            else:
+                label = 0
+
+            if df['labels'][idx] == label:
+                cnt += 1
+        print(f'{thr} : {cnt / len(df)}')
+
+def check_reg_acc(df):
+    threshold = [0.6, 0.7, 0.8, 0.9, 0.95]
+    for thr in threshold:
+        cnt = 0
+
+        for idx in range(len(df)):
+            val = df['org_scores'][idx]
+            if val >= thr:
+                label = 1
+            else:
+                label = 0
+
+            if df['labels'][idx] == label:
+                cnt += 1
+        print(f'{thr} : {cnt / len(df)}')
 
 if __name__=='__main__':
 
     # pipeline_test_bin()
-    VALID_DATA_PATH = '/opt/ml/final-project-level3-nlp-03/finetunning/Dataset/validation_v1.csv'
-    SAVE_BASE_PATH = '/opt/ml/final-project-level3-nlp-03/finetunning/inference_results'
+    VALID_DATA_PATH = '/opt/ml/projects/tunning_data/validation_short_wrong_v3.csv'
+    SAVE_BASE_PATH = '/opt/ml/projects/final-project-level3-nlp-03/finetunning/inference_results'
     os.makedirs(SAVE_BASE_PATH,exist_ok=True)
     TOKENIZED_FROM = 'klue/bert-base'
-    LOAD_FROM = 'klue/bert-base' #'/opt/ml/projects/final-project-level3-nlp-03/finetunning/results/gen_second'
-    csv_save_name = 'klueSTS_reg_1000_gen_bin_final.csv'
+    LOAD_FROM = '/opt/ml/projects/final-project-level3-nlp-03/finetunning/results/paraKQC_second'
+    csv_save_name = 'klueSTS_reg_1000_final_short_v3.csv'
     # model_test_reg(csv_save_name)
-    model_test_bin(csv_save_name)
+    # model_test_bin(csv_save_name)
+    FILE_NAME =  'klueSTS_reg_1000.csv' # 'klueSTS_reg_1000_gen_bin_final.csv' # 'klueSTS_reg_1000_para_bin_final.csv'
+    df = pd.read_csv(os.path.join(SAVE_BASE_PATH, FILE_NAME))
+    # check_bin_acc(df)
+    check_reg_acc(df)
 
 
 
