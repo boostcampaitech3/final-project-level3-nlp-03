@@ -30,7 +30,7 @@ def read_root():
 
 @app.post("/api/input")
 def read_item(data : ProblemList):
-
+    
     a = preprocess(data)
 
     return data

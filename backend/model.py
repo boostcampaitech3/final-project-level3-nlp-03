@@ -110,7 +110,7 @@ def inference_model(data):
 
 
 def output():
-    with open("./example.json", "r") as f:
+    with open("./example.json", "r", encoding="utf-8") as f:
         json_data = json.load(f)
     inference_model(json_data)
 
