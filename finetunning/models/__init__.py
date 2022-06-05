@@ -55,6 +55,7 @@ def get_init_model(model_path, task_type):
     return model
 
 def from_to_cls(model_path, cls_out=2):
+
     model = AutoModelForSequenceClassification.from_pretrained(model_path)
     if isinstance(model, BertForSequenceClassification):
         in_feature_dim = model.classifier.in_features
