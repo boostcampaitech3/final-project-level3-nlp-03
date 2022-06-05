@@ -8,13 +8,21 @@
     "lint": "vue-cli-service lint"
   },
   "dependencies": {
+    "@vue/composition-api": "^1.6.2",
+    "axios": "^0.27.2",
     "chart.js": "^3.8.0",
     "core-js": "^3.8.3",
     "element-ui": "^2.15.8",
+    "papaparse": "^5.3.2",
+    "qs": "^6.10.3",
     "vue": "^2.6.14",
     "vue-chartjs": "^4.1.0",
+    "vue-csv-import": "^4.1.2",
     "vue-google-charts": "^1.0.0",
+    "vue-highlight-words": "^2.0.0",
     "vue-router": "^3.5.1",
+    "vue-text-highlight": "^2.0.10",
+    "vue-word-highlighter": "^1.0.4",
     "vuex": "^3.6.2"
   },
   "devDependencies": {

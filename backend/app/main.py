@@ -1,3 +1,15 @@
+from lib2to3.pgen2 import token
+from typing import List
+from unicodedata import name
+from pydantic import BaseModel
+from fastapi import FastAPI, File, UploadFile, Form
+
+
+
+from util.read_input import preprocess
+from score_logic import compute_final_score
+
+
 import torch
 import json
 import numpy as np
@@ -5,9 +17,17 @@ import pandas as pd
 from transformers import AutoModelForSequenceClassification, AutoTokenizer
 from sentence_transformers import SentenceTransformer
 from keyword_checker import checker
-
 from numpy import dot
 from numpy.linalg import norm
+
+
+model = None
+device = None
+tokenizer = None
+
+sbert_model = None
+LOAD_FROM = 'kimcando/sbert-kornli-knoSTS-trained'
+
 
 def sentences_predict(model, tokenizer, sent_A, sent_B):
     model.eval()
@@ -70,6 +90,7 @@ def make_problem_df(problem, problem_idx, sim_score, student_id, answers):
         result_dict["sim_score"] = round(sim_score[i].astype(np.float64), 4)
         result_dict["keyword_score"] = check_score
         result_dict["total_score"] = round(sim_score[i] + check_score, 4)
+        result_dict["final_score"] = compute_final_score(check_score, round(sim_score[i].astype(np.float64),4))
         result_dict["match_info"] = match_info
         result.append(result_dict)
 
@@ -77,20 +98,21 @@ def make_problem_df(problem, problem_idx, sim_score, student_id, answers):
     return new_data
 
 
+
 def inference_model(data):
-    device = torch.device("cuda:0" if torch.cuda.is_available() else "cpu")
-    tokenizer = AutoTokenizer.from_pretrained("xuio/sts-12ep")
-    model = AutoModelForSequenceClassification.from_pretrained(
-        "kimcando/para_test_4800"
-    )
-    model.cuda()
-    subject = data["subject"]  # 과목
+    # device = torch.device("cuda:0" if torch.cuda.is_available() else "cpu")
+    # tokenizer = AutoTokenizer.from_pretrained("xuio/sts-12ep")
+    # model = AutoModelForSequenceClassification.from_pretrained(
+    #     "kimcando/para_test_4800"
+    # )
+    # model.cuda()
+    #subject = data["subject"]  # 과목
 
     output_dict = {}
-    output_dict["subject"] = data["subject"]
+    #output_dict["subject"] = data["subject"]
     new_problem = []
 
-    for i, problem in enumerate(data["problem"]):
+    for i, problem in enumerate(data):
         # for i, problem in range(data["problem"][0]):
         problem_idx = i
         student_id, answers, gold_answer = load_refine_json_data(problem)
@@ -98,23 +120,21 @@ def inference_model(data):
         softmax = torch.nn.Softmax(dim=1)
         prob = softmax(torch.tensor(logits))
         ans = prob.argmax(dim=1)
-
         sim_score = prob.detach().cpu().numpy()[:, 0]
+
         individual_df = make_problem_df(problem, i, sim_score, student_id, answers)
         new_problem.append(individual_df)
 
-        break  # 예시가 하나만 있기 때문에 들어가있는 break. 실제 json을 넘겨줄 시 지워야 한다
+          # 예시가 하나만 있기 때문에 들어가있는 break. 실제 json을 넘겨줄 시 지워야 한다
     output_dict["problem"] = new_problem
-    output_json = json.dumps(output_dict)
+    #output_json = json.dumps(output_dict)
     # with open("./result.json", "w") as f:  # result 눈으로 확인하는 용도
     #     json.dump(output_dict, f, ensure_ascii=False, indent=4)
-    return output_json
+    return output_dict
 
 
-def output():
-    with open("./example.json", "r", encoding="utf-8") as f:
-        json_data = json.load(f)
-    inference_model(json_data)
+##sbert
+
 
 def get_similarity(ans, right_ans, use="cosine"):
     # Cosine Similarity
@@ -141,20 +161,16 @@ def sentences_sbert_predict(emb_a, emb_b):
         results.append(round(sim_score,2))
     return results
 
-def inference_sbert_model(data):
-    LOAD_FROM = 'kimcando/ko-paraKQC-demo2'
-    sbert_model = SentenceTransformer(LOAD_FROM)
 
-    sbert_model.cuda()
+def inference_sbert_model(data):
 
     output_dict = {}
 
-    subject = data["subject"]  # 과목
-    output_dict["subject"] = data["subject"]
+
     new_problem = []
     # gold_answer = ['제과점끼리 경쟁 심화가 커질 수 있다.', '맛이 더 좋아질 수는 있따']
     # answers = ['제과점끼리 경쟁이 작아질 수 있다.', '더 좋은 맛을 누릴 수 있다'] # 경쟁이 커질 수 있다로 하면 낮게나옴
-    for problem_idx, problem in enumerate(data["problem"]):
+    for problem_idx, problem in enumerate(data):
     # for i, problem in enumerate([1,3]):
         # for i, problem in range(data["problem"][0]):
         student_id, answers, gold_answer = load_refine_json_data(problem)
@@ -165,21 +181,79 @@ def inference_sbert_model(data):
         individual_df = make_problem_df(problem, problem_idx, sim_score, student_id, answers)
         new_problem.append(individual_df)
 
-        break  # 예시가 하나만 있기 때문에 들어가있는 break. 실제 json을 넘겨줄 시 지워야 한다
+        
     output_dict["problem"] = new_problem
-    output_json = json.dumps(output_dict)
-    with open("./result.json", "w") as f:  # result 눈으로 확인하는 용도
-        json.dump(output_dict, f, ensure_ascii=False, indent=4)
-    return output_json
-
-def output_sbert():
-    with open("./example.json", "r") as f:
-        json_data = json.load(f)
-    inference_sbert_model(json_data)
+    # output_json = json.dumps(output_dict)
+    # with open("./result.json", "w") as f:  # result 눈으로 확인하는 용도
+    #     json.dump(output_dict, f, ensure_ascii=False, indent=4)
+    return output_dict
 
 
-if __name__=='__main__':
-    # inference_sbert_model(None)
-    output_sbert()
-    output()
 
+
+app = FastAPI()
+
+class Problem(BaseModel):
+    question: str
+    gold_answer: str
+    keywords: list
+    answers : list
+
+class ProblemList(BaseModel):
+    problem: List[Problem]
+
+
+# before startup, load model
+@app.on_event("startup")
+async def modelUp():
+
+    print("model uploading")
+
+    global device, tokenizer, model, sbert_model
+    device = torch.device("cuda:0" if torch.cuda.is_available() else "cpu")
+    tokenizer = AutoTokenizer.from_pretrained("xuio/sts-12ep")
+    model = AutoModelForSequenceClassification.from_pretrained(
+        "kimcando/para_test_4800"
+    )
+    model.cuda()
+
+    sbert_model = SentenceTransformer(LOAD_FROM)
+    sbert_model.cuda()
+
+    print("done")
+
+#from here API
+@app.get("/api/")
+def read_root():
+    return "hello gompada"
+
+
+@app.post("/api/input")
+def read_item(data : ProblemList):
+
+    data_dict = []
+    for x in data.problem:
+        data_dict.append(dict(x))
+    #print(data_dict)
+    #output = inference_model(data_dict)
+    output = inference_sbert_model(data_dict)
+    #print(output)
+
+    return output
+
+
+
+# main 함수 만들고 배포시에는 백그라운드로 돌려놓기
+#initial
+# uvicorn main:app --host=0.0.0.0 --port=8000 --reload
+'''
+if __name__ == "__main__":
+    #csv db를 sqlte로 미
+    print("server start")
+    uvicorn.run(app, host="127.0.0.1", port=8000)
+    #for producton
+    #uvicorn main:app --host=0.0.0.0 --port=8000 &
+
+    #for test
+    #uvicorn main:app --host=0.0.0.0 --port=8000 --reload
+'''

@@ -1,9 +1,9 @@
 <template>
-<div>
+<div v-show="loading">
     <h2>결과 확인</h2>
     <table-view></table-view>
-    <h2>결과 통계</h2>
-    <graph-view></graph-view>
+    <!-- <h2>결과 통계</h2>
+    <graph-view></graph-view> -->
 </div>
 </template>
 
@@ -15,6 +15,16 @@ export default {
   components : {
     TableView,
     GraphView
+  },
+  watch : {
+    loading(val, old){
+     // console.log(val, old)
+    }
+  },
+  computed : {
+    loading(){
+      return !this.$store.getters.getLoadingStatus
+    }
   }
 }
 </script>

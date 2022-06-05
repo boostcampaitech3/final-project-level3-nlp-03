@@ -6,6 +6,15 @@ module.exports = defineConfig({
       title : "곰파다"
     }
   },
+  devServer : {
+    proxy : {
+      '/api' : {
+        target : "http://27.96.130.147:30002",
+        changeOrigin : true
+      }
+    }
+  },
   lintOnSave : false,
-  transpileDependencies: true
+  transpileDependencies: true,
+
 })

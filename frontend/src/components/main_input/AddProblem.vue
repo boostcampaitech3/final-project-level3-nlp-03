@@ -36,34 +36,92 @@
       class="upload-demo"
       drag
       action="https://jsonplaceholder.typicode.com/posts/"
-
       :file-list="fileList"
-      multiple>
+      :on-success="readCsv"
+      >
       <i class="el-icon-upload"></i>
       <div class="el-upload__text">Drop file here or <em>click to upload</em></div>
       <div class="el-upload__tip" slot="tip">only csv files allowed</div>
   </el-upload>
+  <!-- for debugg -->
+  <!-- <table v-if="parsed" style="width: 100%;">
+    <thead>
+        <tr>
+            <th v-for="(header, key) in content.meta.fields"
+                v-bind:key="'header-'+key">
+                {{ header }}
+            </th>
+        </tr>
+    </thead>
+    <tbody>
+        <tr v-for="(row, rowKey) in content.data"
+            v-bind:key="'row-'+rowKey">
+                <td v-for="(column, columnKey) in content.meta.fields"
+                    v-bind:key="'row-'+rowKey+'-column-'+columnKey">
+                        <input v-model="content.data[rowKey][column]"/>
+                </td>
+        </tr>
+    </tbody>
+  </table> -->
+  <el-button type="primary" class="save-problem" @click="addProblem()">{{tab_name}} 저장</el-button>
   </div>
 </div>
 </template>
 
 <script>
+/*
+columnA	columnB	columnC
+Susan	41	a
+Mike	5	b
+Jake	33	c
+Jill	30	d
+
+*/
+import Papa from 'papaparse';
+
 export default {
     components : {
 
     },
-    props : [],
+    props : ["tab_name"],
     data(){
       return{
+        csv : null,
         fileList : [],
+        file : null,
         input1 : "",
         input2 : "",
         dynamicTags: [],
         inputVisible: false,
-        inputValue: ''
+        inputValue: '',
+        content : [],
+        parsed : false,
       }
     },
     methods : {
+      readCsv(response, file, fileList){
+        this.file = file.raw
+
+        this.parseFile()
+      },
+//       handleFileUpload( event ){
+//     this.file = event.target.files[0];
+//     console.log("에전꺼")
+//     console.log(event.target.files[0])
+//     this.parseFile();
+// },
+      parseFile(){
+        Papa.parse( this.file, {
+            header: true,
+            skipEmptyLines: true,
+            complete: function( results ){
+                this.content = results;
+                this.parsed = true;
+            }.bind(this)
+        });
+
+        
+      },
       handleClose(tag) {
         this.dynamicTags.splice(this.dynamicTags.indexOf(tag), 1);
       },
@@ -80,6 +138,25 @@ export default {
         }
         this.inputVisible = false;
         this.inputValue = '';
+      },
+      answerPreprocess(answer){
+        let answers = []
+        answer.forEach((v, i)=>{
+          answers.push([v.student_id, v.answer])
+        })
+        return answers
+      },
+      addProblem(){
+
+        console.log(this.content.data)
+        let answers = this.answerPreprocess(this.content.data)    
+        console.log(answers)
+        this.$store.commit('addProblem', {
+          question : this.input1,
+          gold_answer : this.input2,
+          keywords : this.dynamicTags,
+          answers : answers
+        })
       }
 
     }
@@ -118,5 +195,8 @@ export default {
     margin-left: 10px;
     vertical-align: bottom;
   }
+}
+.save-problem{
+  float : right;
 }
 </style>
