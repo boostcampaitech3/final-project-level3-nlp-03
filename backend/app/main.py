@@ -5,7 +5,10 @@ from pydantic import BaseModel
 from fastapi import FastAPI, File, UploadFile, Form
 
 
+
 from util.read_input import preprocess
+from score_logic import compute_final_score
+
 
 import torch
 import json
@@ -14,11 +17,16 @@ import pandas as pd
 from transformers import AutoModelForSequenceClassification, AutoTokenizer
 from sentence_transformers import SentenceTransformer
 from keyword_checker import checker
+from numpy import dot
+from numpy.linalg import norm
 
 
 model = None
 device = None
 tokenizer = None
+
+sbert_model = None
+LOAD_FROM = 'kimcando/sbert-kornli-knoSTS-trained'
 
 
 def sentences_predict(model, tokenizer, sent_A, sent_B):
@@ -82,11 +90,13 @@ def make_problem_df(problem, problem_idx, sim_score, student_id, answers):
         result_dict["sim_score"] = round(sim_score[i].astype(np.float64), 4)
         result_dict["keyword_score"] = check_score
         result_dict["total_score"] = round(sim_score[i] + check_score, 4)
+        result_dict["final_score"] = compute_final_score(check_score, round(sim_score[i].astype(np.float64),4))
         result_dict["match_info"] = match_info
         result.append(result_dict)
 
     new_data["result"] = result
     return new_data
+
 
 
 def inference_model(data):
@@ -110,8 +120,8 @@ def inference_model(data):
         softmax = torch.nn.Softmax(dim=1)
         prob = softmax(torch.tensor(logits))
         ans = prob.argmax(dim=1)
-
         sim_score = prob.detach().cpu().numpy()[:, 0]
+
         individual_df = make_problem_df(problem, i, sim_score, student_id, answers)
         new_problem.append(individual_df)
 
@@ -123,6 +133,60 @@ def inference_model(data):
     return output_dict
 
 
+##sbert
+
+
+def get_similarity(ans, right_ans, use="cosine"):
+    # Cosine Similarity
+    if use == "cosine":
+        return dot(ans, right_ans) / (norm(ans) * norm(right_ans))
+
+    # Euclidean
+    if use == "euclidean":
+        if norm(ans - right_ans) == norm(ans - right_ans):
+            return norm(ans - right_ans)
+        else:
+            return -1
+
+    # Pearson
+    if use == "pearson":
+        return dot((ans - np.mean(ans)), (right_ans - np.mean(right_ans))) / (
+                    (norm(ans - np.mean(ans))) * (norm(right_ans - np.mean(right_ans))))
+
+
+def sentences_sbert_predict(emb_a, emb_b):
+    results = []
+    for idx, (a, b) in enumerate(zip(emb_a, emb_b)):
+        sim_score = get_similarity(a, b, use="cosine")
+        results.append(round(sim_score,2))
+    return results
+
+
+def inference_sbert_model(data):
+
+    output_dict = {}
+
+
+    new_problem = []
+    # gold_answer = ['제과점끼리 경쟁 심화가 커질 수 있다.', '맛이 더 좋아질 수는 있따']
+    # answers = ['제과점끼리 경쟁이 작아질 수 있다.', '더 좋은 맛을 누릴 수 있다'] # 경쟁이 커질 수 있다로 하면 낮게나옴
+    for problem_idx, problem in enumerate(data):
+    # for i, problem in enumerate([1,3]):
+        # for i, problem in range(data["problem"][0]):
+        student_id, answers, gold_answer = load_refine_json_data(problem)
+
+        right_ans_emb = sbert_model.encode(gold_answer)
+        stu_ans_emb = sbert_model.encode(answers)
+        sim_score = sentences_sbert_predict(right_ans_emb, stu_ans_emb)
+        individual_df = make_problem_df(problem, problem_idx, sim_score, student_id, answers)
+        new_problem.append(individual_df)
+
+        
+    output_dict["problem"] = new_problem
+    # output_json = json.dumps(output_dict)
+    # with open("./result.json", "w") as f:  # result 눈으로 확인하는 용도
+    #     json.dump(output_dict, f, ensure_ascii=False, indent=4)
+    return output_dict
 
 
 
@@ -145,13 +209,16 @@ async def modelUp():
 
     print("model uploading")
 
-    global device, tokenizer, model
+    global device, tokenizer, model, sbert_model
     device = torch.device("cuda:0" if torch.cuda.is_available() else "cpu")
     tokenizer = AutoTokenizer.from_pretrained("xuio/sts-12ep")
     model = AutoModelForSequenceClassification.from_pretrained(
         "kimcando/para_test_4800"
     )
     model.cuda()
+
+    sbert_model = SentenceTransformer(LOAD_FROM)
+    sbert_model.cuda()
 
     print("done")
 
@@ -168,7 +235,8 @@ def read_item(data : ProblemList):
     for x in data.problem:
         data_dict.append(dict(x))
     #print(data_dict)
-    output = inference_model(data_dict)
+    #output = inference_model(data_dict)
+    output = inference_sbert_model(data_dict)
     #print(output)
 
     return output
