@@ -21,10 +21,15 @@ from soynlp.normalizer import *
 import gensim 
 import gensim.models as g
 
-model_name = 'fast_text_ko'
-model = g.Doc2Vec.load(model_name)
-
 import re
+
+from keyword_arguments import get_args
+
+def cosine_similarity(a, b):
+
+    #return np.inner(a, b) / (np.linalg.norm(a) * (np.linalg.norm(b)))
+    return np.dot(a, b) / (np.linalg.norm(a) * (np.linalg.norm(b)))
+
 
 class Keyword_similarity:
     
@@ -42,43 +47,53 @@ class Keyword_similarity:
         return ['/'.join(t) for t in self.pos_tagger.pos(doc, norm=True, stem=True)]
 
     def keyword_score(self, keyword_list, sentence_list):
-        idx_list = []
-        for keyword in keyword_list:
-            idx_list.append(self.get_keyword_score_list(keyword, sentence_list))
+        keyword_dict = {}
+        for idx, keyword in enumerate(keyword_list):
+            keyword_dict[f"keyword_{idx}"] = self.get_keyword_score_list(keyword, sentence_list)
 
-        return idx_list
+        return keyword_dict
 
     ## 키워드 하나에 대해서 답안들에 대해 조사한다.
     def get_keyword_score_list(self, keyword, sentence_list):
-        idx_list = []
-        # preprocess_context(sentence_list)
-        for sentence in sentence_list:
-            idx_list.append(self.keyword_one_sentence(keyword, sentence))
+        sentence_dict = {}
+        for idx, sentence in enumerate(sentence_list):
+            sentence_dict[f'student_{idx}'] = self.keyword_one_sentence(keyword, sentence)
         
-        return idx_list
+        return sentence_dict
 
     ## 하나의 키워드에 대해서 그 문장의 것들에 대한 점수를 리스트로 반환한다.
     def keyword_one_sentence(self, keyword, sentence):
-        pos_keyword = self.tokenize(keyword)
-        keyword_vec = self.model.wv.get_vector(pos_keyword[0])
+        # pos_keyword = self.tokenize(keyword)
+        # keyword_vec = self.model.wv.get_vector(pos_keyword[0])
+        pos_keyword = pos_tagger.pos(keyword)
+        keyword_vec = self.model.wv.get_vector(pos_keyword[0][0])
         
-        cosine_list = []
+        start_idx = []
+        end_idx = []
         word_list = []
-        for word in sentence:
+        split_sentence = sentence.split()
+        for word in split_sentence:
             
-            pos_word = self.tokenize(word)
-            try: 
-                word_vec = self.model.wv.get_vector(pos_word[0])
-            except:
-                continue
-            if cosine_similarity(keyword_vec, word_vec) > self.threshold and pos_word not in word_list:
-                results = re.finditer(word, sentence)
-                for matched_key in results:
-                    cosine_list.append([matched_key.start(), matched_key.end()])
-                
-                word_list.append(pos_word)
+            pos_word = pos_tagger.pos(word)            
+            # pos_word = word
+            for split_word in pos_word:             
+                if split_word[1] in ['Noun', 'Verb', 'Adjective', 'Adverb']:
+                # if split_word[1] in ['Noun']:
+                    try: 
+                        word_vec = self.model.wv.get_vector(split_word[0])
+                        # word_vec = self.model.wv.get_vector(pos_word)
+                        # word_vec = self.model.wv.get_vector(pos_word)
+                    except:
+                        continue
+                    if cosine_similarity(keyword_vec, word_vec) > self.threshold and pos_word not in word_list:
+                        results = re.finditer(word, sentence)
+                        for matched_key in results:
+                            start_idx.append(matched_key.start())
+                            end_idx.append(matched_key.end())
+                        
+                        word_list.append(pos_word[0][0])
             
-        return cosine_list
+        return start_idx, end_idx, word_list
 
 def main(keyword_list, sentence_list, KS):
     
@@ -86,10 +101,12 @@ def main(keyword_list, sentence_list, KS):
 
 if __name__ == '__main__':
     # 파일 불러오기
+    args = get_args()
     sentence_data_path = args.sentence_data_path
     sentence_file_name = '../data/' + args.sentence_file_name
     data = pd.read_csv(sentence_file_name, encoding='utf-8')
     sentence_list = data['sentence'].tolist()
+    
 
     keyword_data_path = args.keyword_data_path
     keyword_file_name = '../data/' + args.keyword_file_name
@@ -97,7 +114,7 @@ if __name__ == '__main__':
     keyword_list = data['keyword'].tolist()
 
     # 모델 불러오기
-
+    pos_tagger = Okt()
     model_name = args.model_name
     model = g.Doc2Vec.load(model_name)
     Fast_KS = Keyword_similarity(model, 0.35, pos_tagger)
