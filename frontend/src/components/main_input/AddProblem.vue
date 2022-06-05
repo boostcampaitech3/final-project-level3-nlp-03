@@ -139,12 +139,23 @@ export default {
         this.inputVisible = false;
         this.inputValue = '';
       },
+      answerPreprocess(answer){
+        let answers = []
+        answer.forEach((v, i)=>{
+          answers.push([v.student_id, v.answer])
+        })
+        return answers
+      },
       addProblem(){
+
+        console.log(this.content.data)
+        let answers = this.answerPreprocess(this.content.data)    
+        console.log(answers)
         this.$store.commit('addProblem', {
           question : this.input1,
           gold_answer : this.input2,
           keywords : this.dynamicTags,
-          answers : this.content.data
+          answers : answers
         })
       }
 

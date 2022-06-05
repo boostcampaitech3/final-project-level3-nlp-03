@@ -6,19 +6,41 @@ Vue.use(Vuex)
 export default new Vuex.Store({
   state: {
     test_name : "",
+    loading : true,
     input_data : {
-      data : []
+      problem : []
+    },
+    result_data : {
+      problem : []
     }
   },
   getters: {
     getProblem(state){
       return state.input_data
+    },
+    getResult(state){
+      return state.result_data
+    },
+    getLoadingStatus(state){
+      return state.loading
     }
   },
   mutations: {
-    addProblem(state, payload){
-      state.input_data.data.push(payload)
+    initializeResult(state){
+      state.result_data.problem = []
     },
+    addProblem(state, payload){
+      state.input_data.problem.push(payload)
+    },
+    addResult(state, payload){
+      state.result_data.problem.push(payload)
+    },
+    loadingPending(state){
+      state.loading = true
+    },
+    loadingDone(state){
+      state.loading = false
+    }
   },
   actions: {
 
@@ -27,3 +49,5 @@ export default new Vuex.Store({
     
   }
 })
+
+
