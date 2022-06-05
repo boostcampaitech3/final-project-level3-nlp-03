@@ -8,7 +8,9 @@
       <input-problem></input-problem>
       <show-result></show-result>
     </el-main>
-    <el-footer>Footer</el-footer>
+    <el-footer>
+      <main-footer></main-footer>
+    </el-footer>
 </el-container>
 </template>
 
@@ -22,6 +24,8 @@ import InputBasic from '@/components/main_input/InputBasic.vue'
 import InputProblem from '@/components/main_input/InputProblem.vue'
 import ShowResult from '@/components/main_process/ShowResult.vue'
 
+//footer
+import MainFooter from '@/components/footer/MainFooter.vue'
 
 export default {
   name: 'HomeView',
@@ -29,7 +33,8 @@ export default {
     MainHeader,
     InputBasic,
     InputProblem,
-    ShowResult
+    ShowResult,
+    MainFooter
 
   }
 }
@@ -52,6 +57,12 @@ export default {
      background-color: #F2F6FC;
      border-radius: 20px;
      padding : 25px;
+  }
+  .el-footer{
+    background-color : #f4f6f8;
+    border-top : 1px solid #dddddd;
+    height : auto !important;
+    padding: 20px;
   }
   
   body > .el-container {

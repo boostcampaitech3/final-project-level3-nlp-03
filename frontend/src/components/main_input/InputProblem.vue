@@ -1,7 +1,12 @@
 <template>
 <div>
     <div style="margin-bottom: 20px;">
-    <h2>문제, 모법답안, 학생답안 추가</h2>  
+    <div>
+      <h2>문제, 모법답안, 학생답안 추가</h2>
+      <el-tooltip :content="basic_info" placement="top" effect="light">
+        <i class="el-icon-info"></i>
+      </el-tooltip>
+    </div>  
     <el-button
         type="info"
         @click="addTab(editableTabsValue)"
@@ -10,6 +15,7 @@
     </el-button>
        <el-button class="submit-button"
         type="success"
+        :loading=loading
         @click="sendResult()"
     >
       제출 및 결과보기
@@ -41,6 +47,8 @@ export default {
     props : [],
     data(){
         return {
+        loading : false,
+        basic_info : "문제 추가 버튼을 통해서 문제를 추가할 수 있고 문제 작성이후 문제 저장 버튼을 눌러야 합니다",
         editableTabsValue: '1',
         editableTabs: [{
           title: '문제 1',
@@ -58,9 +66,8 @@ export default {
     methods : {
       sendResult(){
         //console.log(JSON.stringify(this.getData))
+        this.loading = true
         let data = this.getData
-        console.log("데이터 전송")
-        console.log(JSON.stringify(data))
         this.$store.commit("loadingPending")
 
 //         let data = {
@@ -116,9 +123,21 @@ export default {
             this.$store.commit('addResult', v)
             this.$store.commit("loadingDone")
           })
-          console.log(this.$store.getters.getResult)
-
+          this.loading = false
+          this.$notify({
+            title: '성공',
+            message: `성공적으로 채점이 되었습니다.`,
+            type: 'success'
+          });
         })
+        .catch(error =>{ 
+        this.$notify({
+          title: '실폐',
+          message: `서버 전송에 실폐하였습니다.`,
+          type: 'failure'
+        });
+        this.loading = false
+      });
       },
       addTab(targetName) {
         let newTabName = ++this.tabIndex + '';
@@ -128,6 +147,10 @@ export default {
   
         });
         this.editableTabsValue = newTabName;
+        this.$notify({
+          title: '문제 추가',
+          message: `문제가 추가되었습니다.`,
+        });
       },
       removeTab(targetName) {
         let tabs = this.editableTabs;
@@ -154,6 +177,9 @@ export default {
 </script>
 
 <style lang="scss">
+h2{
+  display : inline-block;
+}
 .submit-button{
   float : right;
 }

@@ -32,6 +32,34 @@
       <el-button v-else class="button-new-tag" size="small" @click="showInput">+ New Tag</el-button>
     </div>
     <h3>파일 업로드</h3>
+      <el-popover
+    placement="top-start"
+    title="파일은 csv형식으로 올려야 하며 형식은 다음과 같습니다.(예시)"
+    width="200"
+    trigger="hover"
+    :content="basic_info">
+          <template v-slot>
+        <code>
+          student_id,answer </br>
+          0,나무보다 금속이 열 전달을 더 잘하기 때문에</br>
+          3,금속이 나무보다 열을 더 잘 흡수를 잘하기 때문이다.</br>
+        </code>
+      </template>
+    <i slot="reference" class="el-icon-info"></i>
+    
+  </el-popover>
+    <!-- <el-tooltip :content="basic_info" placement="top" effect="light">
+      <template v-slot:content>
+        <div>파일은 csv형식으로 올려야 하며 형식은 다음과 같습니다.</div>
+        <code>
+          student_id,answer
+0,나무보다 금속이 열 전달을 더 잘하기 때문에
+3,금속이 나무보다 열을 더 잘 흡수를 잘하기 때문이다.
+12,금속이 나무보다 열전도성이 좋기 때문이다.
+        </code>
+      </template>
+        <i class="el-icon-info"></i>
+    </el-tooltip> -->
     <el-upload
       class="upload-demo"
       drag
@@ -43,27 +71,7 @@
       <div class="el-upload__text">Drop file here or <em>click to upload</em></div>
       <div class="el-upload__tip" slot="tip">only csv files allowed</div>
   </el-upload>
-  <!-- for debugg -->
-  <!-- <table v-if="parsed" style="width: 100%;">
-    <thead>
-        <tr>
-            <th v-for="(header, key) in content.meta.fields"
-                v-bind:key="'header-'+key">
-                {{ header }}
-            </th>
-        </tr>
-    </thead>
-    <tbody>
-        <tr v-for="(row, rowKey) in content.data"
-            v-bind:key="'row-'+rowKey">
-                <td v-for="(column, columnKey) in content.meta.fields"
-                    v-bind:key="'row-'+rowKey+'-column-'+columnKey">
-                        <input v-model="content.data[rowKey][column]"/>
-                </td>
-        </tr>
-    </tbody>
-  </table> -->
-  <el-button type="primary" class="save-problem" @click="addProblem()">{{tab_name}} 저장</el-button>
+  <el-button type="primary" class="save-problem" @click="addProblem(tab_name)" :disabled="button">{{tab_name}} 저장</el-button>
   </div>
 </div>
 </template>
@@ -87,6 +95,7 @@ export default {
     data(){
       return{
         csv : null,
+        basic_info : "qwer",
         fileList : [],
         file : null,
         input1 : "",
@@ -96,6 +105,7 @@ export default {
         inputValue: '',
         content : [],
         parsed : false,
+        button : false,
       }
     },
     methods : {
@@ -146,17 +156,27 @@ export default {
         })
         return answers
       },
-      addProblem(){
+      addProblem(tab_name){
 
-        console.log(this.content.data)
+
         let answers = this.answerPreprocess(this.content.data)    
-        console.log(answers)
         this.$store.commit('addProblem', {
           question : this.input1,
           gold_answer : this.input2,
           keywords : this.dynamicTags,
           answers : answers
         })
+
+
+        this.button = true
+
+        this.$notify({
+          title: '문제 저장 성공',
+          message: `${tab_name} 저장되었습니다.`,
+          type: 'success'
+        });
+
+
       }
 
     }
@@ -198,5 +218,15 @@ export default {
 }
 .save-problem{
   float : right;
+}
+h3{
+  display:inline-block;
+}
+code {
+    padding: 0.25rem;
+    background-color: #F1F1F1;
+    border-radius: 5px;
+    font-family: "Consolas", "Sans Mono", "Courier", "monospace";
+    font-size: 0.75rem;
 }
 </style>
