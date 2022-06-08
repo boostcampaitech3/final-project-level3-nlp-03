@@ -99,8 +99,8 @@
     - 회의 기록을 포함해 서비스 구상도, 개발 과정 등 각종 공유 사안들을 체계적으로 정리했습니다.
     - 아래 링크를 통해 노션을 직접 확인하실 수 있습니다.
     - [notion](https://www.notion.so/bb2336eeb90040058b183835c34f4006)
-
-![image](https://user-images.githubusercontent.com/31491678/172570659-42644312-2de2-4ae0-a16d-148661b5785e.png)
+    
+      <img width="494" alt="스크린샷 2022-06-08 오후 11 12 15" src="https://user-images.githubusercontent.com/50793789/172638642-0c96621f-abf9-4d2e-b788-c9947ccfd54e.png">
 
 - GitHub
 ![image](https://user-images.githubusercontent.com/31491678/172570704-0ddb159d-d99c-41f1-b169-7ef8a821b6df.png)
