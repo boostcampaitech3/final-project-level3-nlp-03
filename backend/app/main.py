@@ -246,14 +246,17 @@ def read_item(data : ProblemList):
 # main 함수 만들고 배포시에는 백그라운드로 돌려놓기
 #initial
 # uvicorn main:app --host=0.0.0.0 --port=8000 --reload
-'''
-if __name__ == "__main__":
-    #csv db를 sqlte로 미
-    print("server start")
-    uvicorn.run(app, host="127.0.0.1", port=8000)
+
+# if __name__ == "__main__":
+#     #csv db를 sqlte로 미
+#     print("server start")
+#     uvicorn.run(app, host="0.0.0.0", port=30001)
     #for producton
     #uvicorn main:app --host=0.0.0.0 --port=8000 &
 
     #for test
-    #uvicorn main:app --host=0.0.0.0 --port=8000 --reload
-'''
+    #uvicorn main:app --host=0.0.0.0 --port=30001 --reload
+
+
+#gunicorn main:app -k uvicorn.workers.UvicornWorker -b 0.0.0.0:30001
+#gunicorn main:app --workers 1 --worker-class uvicorn.workers.UvicornWorker --bind 0.0.0.0:30001 --timeout 600
