@@ -57,7 +57,7 @@
       </el-table-column>
       <el-table-column align="center" property="correctness" label="최종 점수" width="150">
         <template slot-scope="scope">
-          <span class="fin-score">{{scope.row.final_score}} / 100</span>
+          <span class="fin-score">{{scope.row.final_score}} / 5</span>
         </template>
       </el-table-column>
     </el-table>
@@ -140,7 +140,7 @@ export default {
     watch : {
       loading(val, old){
         let data = this.$store.getters.getResult
-        console.log(data)
+        //console.log(data)
         this.preprocess_modal(data.problem)
         this.preprocess_table(this.gridData)
       }
@@ -154,7 +154,7 @@ export default {
       },
       handleEdit(index, row) {
         this.current_id = row.student_id
-        console.log(this.current_id)
+        //console.log(this.current_id)
       },
 
       preprocess_modal(data){
@@ -174,7 +174,7 @@ export default {
               user_keyword : value.match_info.keyword,
               sim_score : value.sim_score,
               keyword_score : value.keyword_score,
-              final_score :  Math.round(value.final_score * 100)
+              final_score :  (value.final_score * 5).toFixed(2)
 
             }
             if(this.studentResult.hasOwnProperty(student_id)){
@@ -200,7 +200,7 @@ export default {
           })
           this.tableData.push({
             student_id : student_id,
-            score : `${score} / ${data[student_id].length * 100}`
+            score : `${score} / ${data[student_id].length * 5}`
 
           })
         }
