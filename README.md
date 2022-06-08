@@ -1,13 +1,17 @@
 # 안녕하세요, 곰파다입니다. 👋
 
 > **곰파다** : 사물이나 일의 속내를 알려고 자세히 찾아보고 따지다.
+
+
 곰파다는 학생들의 서술형 답안을 자동으로 채점해 선생님들의 반복적 채점 작업을 효율적으로 줄여주는 프로젝트입니다. 교육기관에서 사용하는 AI 자동 채점 시스템이 기존의 단점(띄어쓰기, 유사어 등을 판별하지 못하는 것)으로 인해 실제로 사용하기 어렵다는 사실을 바탕으로, 단점들을 개선하고 더욱 정밀한 채점 보조 서비스를 만들고자 했습니다.
 
 ![Untitled 1](https://user-images.githubusercontent.com/31491678/172570199-880b21cc-b1c2-4d2e-8662-5ac43c8b267e.png)
 
 곰파다는 위와 같은 시스템 구조로 이루어져 있습니다. 사용자가 웹에서 문제, 모범답안, 키워드, 학생 답변 csv를 input으로 넣으면 곰파다가 데이터를 기반으로 학생의 답변을 자동으로 채점합니다. 해당 결과물은 사용자가 웹페이지에서 다운로드 받을 수 있는 형태인 CSV로 제공합니다. 
 
-![image](https://user-images.githubusercontent.com/31491678/172570333-df85f902-7bfc-42f7-ae9f-019834243029.png)
+
+
+<center><img width="799" alt="스크린샷 2022-06-08 오후 10 55 56" src="https://user-images.githubusercontent.com/50793789/172634752-4f18bd8c-d9ed-4e81-98bb-2a39d8a9f573.png"></center>
 곰파다는 다섯 명의 협업으로 만들어진 프로젝트이며, 각자 맡았던 역할은 위와 같습니다.
 
 ---
@@ -29,9 +33,13 @@
 1. 문장 유사도 모델
 문맥 유사도 채점 모델은 각 문장의 임베딩을 구하고 코사인 유사도 손실함수로 학습하는 **sentence BERT**를 이용했습니다. 일반적인 BERT모델로 문장쌍을 입력으로 넣고 회귀 혹은 이진분류로 학습하면 저희가 구축한 validation 데이터에서 좋지않은 성능이 나왔기 때문입니다. 더 좋은 문장 임베딩을 얻기 위해 사전 테스크와 다양한 데이터셋으로 실험해보았습니다.  그 결과 klue/bert-bas 사전학습 모델로 Natural langugage inference 테스크로 먼저 파인튜닝한 후,  문장 유사도 테스크에 파인튜닝한 모델을 선택하였습니다.
 
-![image](https://user-images.githubusercontent.com/31491678/172570480-dc9ec263-3894-412a-b49f-639a9c5e48d7.png)
-![image](https://user-images.githubusercontent.com/31491678/172570500-16a3695f-b5c4-4170-b1dd-9ab1f2634f2c.png)
-![image](https://user-images.githubusercontent.com/31491678/172570529-3c90c510-4455-401a-87db-c3120574d03b.png)
+<img width="735" alt="스크린샷 2022-06-08 오후 10 58 35" src="https://user-images.githubusercontent.com/50793789/172635452-9ac3d55b-def8-407a-a93d-1bd7b17e662c.png">
+
+
+<img width="1048" alt="스크린샷 2022-06-08 오후 11 00 20" src="https://user-images.githubusercontent.com/50793789/172636095-61118d94-91e9-45e2-9c24-300f8f9521f0.png">
+
+
+<img width="1066" alt="스크린샷 2022-06-08 오후 11 02 12" src="https://user-images.githubusercontent.com/50793789/172636469-5835d781-6490-48f1-a658-473b2438bc13.png">
 
 
 ## 모델 환경 설정
