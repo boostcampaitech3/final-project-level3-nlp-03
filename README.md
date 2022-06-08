@@ -53,12 +53,17 @@
 
 ## 데이터
 
-- 문장 유사도 Train 데이터
-<img width="772" alt="스크린샷 2022-06-08 오후 10 31 22" src="https://user-images.githubusercontent.com/50793789/172629192-ff99df36-4f19-4b82-9884-d24148ad7f75.png">
-    [https://github.com/kakaobrain/KorNLUDatasets](https://github.com/kakaobrain/KorNLUDatasets)
-    [https://github.com/warnikchow/paraKQC](https://github.com/warnikchow/paraKQC)
-    [https://github.com/yoongi0428/Kor-Sentence-Similarity](https://github.com/yoongi0428/Kor-Sentence-Similarity)
-    [https://klue-benchmark.com/tasks/67/data/description](https://klue-benchmark.com/tasks/67/data/description)
+- 문장 유사도 Train 데이터(오픈 데이터)
+  | |[KorSTS](https://github.com/kakaobrain/KorNLUDatasets)|[paraKQC](https://github.com/warnikchow/paraKQC)|[Kor-sentence](https://github.com/yoongi0428/Kor-Sentence-Similarity)|[KLUE STS](https://klue-benchmark.com/tasks/67/data/description)|
+  |--|------|------|------|------|
+  |라벨|0~5값|0 또는 1|0 또는 1|0 또는 1 / 0~5값|0 또는 1|
+  |특징|짧은 문장.외국 STS-B 번역. 뉴스, 표현 설명 내용|짧은 문장. 질문중심|짧은 문장. 지식인 질문 포함. 인터넷 용어 다수| 짧은 문장. Airbnb, Policy, paraKQC 포함|
+  |데이터 개수| 5,749 | 15,170 | 61,220 | 11,668 | 14,390|
+
+- 문장 유사도 Train 데이터(제작 데이터)
+    - 짧은 문장. 유의어, 반의어 고려해 데이터 제작
+    - 라벨 : 0 또는 1
+    - 데이터 개수 : 14,390
     
 - 문장 유사도  Validation & Test 데이터
     - 교육부와 한국과학창의재단이 지원한 서술형 평가 지원프로그램 개발 사업 데이터(연구책임: 하민수 교수)
