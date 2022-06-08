@@ -68,7 +68,7 @@ export default {
         //console.log(JSON.stringify(this.getData))
         this.loading = true
         let data = this.getData
-        console.log(data)
+        //console.log(data)
         this.$store.commit("loadingPending")
 
 //         let data = {
@@ -119,15 +119,15 @@ export default {
         Api.sendData(data)
         .then((res)=>{
           let result = res.data.problem
-          console.log("결과")
-          console.log(result)
+          //console.log("결과")
+          //console.log(result)
           this.$store.commit("initializeResult")
           result.forEach((v, i)=>{
             
             this.$store.commit('addResult', v)
             this.$store.commit("loadingDone")
           })
-          console.log(this.$store.getters.getResult)
+          //console.log(this.$store.getters.getResult)
           this.loading = false
           this.$notify({
             title: '성공',

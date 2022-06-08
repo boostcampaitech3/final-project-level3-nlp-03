@@ -167,8 +167,8 @@ export default {
           answers : answers
         })
 
-        console.log("문제추가")
-        console.log(this.$store.getters.getProblem)
+        //console.log("문제추가")
+        //console.log(this.$store.getters.getProblem)
 
         this.button = true
 

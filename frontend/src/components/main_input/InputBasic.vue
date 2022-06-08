@@ -19,6 +19,8 @@ export default {
       basic_info : "기본정보 추가에서는 시험 이름을 추가합니다"
     }
   },
+  mounted(){
+  }
 }
 </script>
 

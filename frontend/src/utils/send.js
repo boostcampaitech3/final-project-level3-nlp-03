@@ -8,7 +8,7 @@ import axios from 'axios'
     https://github.com/axios/axios 의 Request Config 챕터 확인
 */
 const Send = axios.create({
-    baseURL: "http://localhost:8081/api",
+    baseURL: process.env.VUE_APP_SERVER_URL,
     //https://helpdiana.site/api
     //http://localhost:8081/api
     timeout: 10000,
@@ -61,7 +61,6 @@ Send.interceptors.response.use(
     },
 
     function (error) {
-        console.log("에러")
         console.log(error)
 
 
