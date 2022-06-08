@@ -11,7 +11,7 @@
 
 
 
-<center><img width="799" alt="스크린샷 2022-06-08 오후 10 55 56" src="https://user-images.githubusercontent.com/50793789/172634752-4f18bd8c-d9ed-4e81-98bb-2a39d8a9f573.png"></center>
+<center><img width="1028" alt="스크린샷 2022-06-08 오후 10 55 56" src="https://user-images.githubusercontent.com/50793789/172634752-4f18bd8c-d9ed-4e81-98bb-2a39d8a9f573.png"></center>
 곰파다는 다섯 명의 협업으로 만들어진 프로젝트이며, 각자 맡았던 역할은 위와 같습니다.
 
 ---
