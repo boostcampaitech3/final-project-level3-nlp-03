@@ -30,7 +30,10 @@
 정성적으로 판단한 결과 유사도 기준 수치(cosine similarity)를 0.35로 정했습니다.
 
 ![image](https://user-images.githubusercontent.com/31491678/172570441-3deac3e7-b850-4a3d-9238-b67250d004a1.png)
-1. 문장 유사도 모델
+
+2. 문장 유사도 모델
+
+
 문맥 유사도 채점 모델은 각 문장의 임베딩을 구하고 코사인 유사도 손실함수로 학습하는 **sentence BERT**를 이용했습니다. 일반적인 BERT모델로 문장쌍을 입력으로 넣고 회귀 혹은 이진분류로 학습하면 저희가 구축한 validation 데이터에서 좋지않은 성능이 나왔기 때문입니다. 더 좋은 문장 임베딩을 얻기 위해 사전 테스크와 다양한 데이터셋으로 실험해보았습니다.  그 결과 klue/bert-bas 사전학습 모델로 Natural langugage inference 테스크로 먼저 파인튜닝한 후,  문장 유사도 테스크에 파인튜닝한 모델을 선택하였습니다.
 
 <img width="735" alt="스크린샷 2022-06-08 오후 10 58 35" src="https://user-images.githubusercontent.com/50793789/172635452-9ac3d55b-def8-407a-a93d-1bd7b17e662c.png">
