@@ -43,7 +43,8 @@ export default {
 <style lang="scss">
 @import url("//unpkg.com/element-ui@2.15.8/lib/theme-chalk/index.css");
 .el-header{
-  height : auto !important;  
+  height : auto !important; 
+  padding : 0;
 }
   
   .el-aside {

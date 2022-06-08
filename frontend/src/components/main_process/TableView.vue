@@ -57,7 +57,7 @@
       </el-table-column>
       <el-table-column align="center" property="correctness" label="최종 점수" width="150">
         <template slot-scope="scope">
-          <span class="fin-score">{{scope.row.final_score}} / 5</span>
+          <span class="fin-score">{{scope.row.final_score}}</span> / 100
         </template>
       </el-table-column>
     </el-table>
@@ -174,7 +174,7 @@ export default {
               user_keyword : value.match_info.keyword,
               sim_score : value.sim_score,
               keyword_score : value.keyword_score,
-              final_score :  (value.final_score * 5).toFixed(2)
+              final_score :  Math.round(value.final_score * 100)
 
             }
             if(this.studentResult.hasOwnProperty(student_id)){
@@ -200,7 +200,7 @@ export default {
           })
           this.tableData.push({
             student_id : student_id,
-            score : `${score} / ${data[student_id].length * 5}`
+            score : `${score} / ${data[student_id].length * 100}`
 
           })
         }
@@ -233,5 +233,6 @@ export default {
 }
 .fin-score{
   font-weight: bold;
+  font-size : 26px;
 }
 </style>
