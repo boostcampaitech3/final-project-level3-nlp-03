@@ -54,8 +54,7 @@
 ## 데이터
 
 - 문장 유사도 Train 데이터
-    
-    ![스크린샷 2022-06-08 오전 9.36.24.png](ReadME%206bbc2437b908418bb5404eceba7358ee/%E1%84%89%E1%85%B3%E1%84%8F%E1%85%B3%E1%84%85%E1%85%B5%E1%86%AB%E1%84%89%E1%85%A3%E1%86%BA_2022-06-08_%E1%84%8B%E1%85%A9%E1%84%8C%E1%85%A5%E1%86%AB_9.36.24.png)
+<img width="772" alt="스크린샷 2022-06-08 오후 10 31 22" src="https://user-images.githubusercontent.com/50793789/172629192-ff99df36-4f19-4b82-9884-d24148ad7f75.png">
     
     [1] [https://github.com/kakaobrain/KorNLUDatasets](https://github.com/kakaobrain/KorNLUDatasets)
     
