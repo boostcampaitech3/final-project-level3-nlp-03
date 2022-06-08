@@ -23,21 +23,29 @@ def load_refine_json_data(data):
 def sync_match_info(keywords, keyword_num, whole_keyword_list, student_num):
     start_idx_list = []
     end_idx_list = []
+    word_list = []
     match_info = {}
-    match_info['keyword'] = keywords
-    match_info['start_idx'] = []
+    match_info["keyword"] = keywords
+    match_info["start_idx"] = []
     empty_count = 0
 
     len_keywords = len(keywords)
     for i in range(len_keywords):
-        start_idx = whole_keyword_list[f'keyword_{i}'][f'student_{student_num}'][0]['start_idx']
-        end_idx = whole_keyword_list[f'keyword_{i}'][f'student_{student_num}'][1]['end_idx']
+        start_idx = whole_keyword_list[f"keyword_{i}"][f"student_{student_num}"][0][
+            "start_idx"
+        ]
+        end_idx = whole_keyword_list[f"keyword_{i}"][f"student_{student_num}"][1][
+            "end_idx"
+        ]
+        words = whole_keyword_list[f"keyword_{i}"][f"student_{student_num}"][2]["word"]
         start_idx_list.append(start_idx)
         end_idx_list.append(end_idx)
+        word_list.append(words)
         if not start_idx:
             empty_count += 1
-    match_info['start_idx'] = start_idx_list
-    match_info['end_idx'] = end_idx_list
+    match_info["start_idx"] = start_idx_list
+    match_info["end_idx"] = end_idx_list
+    match_info["word"] = word_list
 
     keyword_score = (len_keywords - empty_count) / len_keywords
 
