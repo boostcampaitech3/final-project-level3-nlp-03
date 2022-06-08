@@ -53,4 +53,10 @@ def checker(student_answer, key_words):
     # {'keword': ['공기'], 'start_idx': [[4], []], 'end_idx': [[6], []]}
     # 아무것도 나오지 않은 경우
     # {'keword': [], 'start_idx': [], 'end_idx': []}
-    return round(correct/total_key_words, 2) , matching_key_info
+    ratio = 0
+    if(total_key_words):
+        ratio = round(correct/total_key_words, 2) 
+
+    
+
+    return ratio , matching_key_info
