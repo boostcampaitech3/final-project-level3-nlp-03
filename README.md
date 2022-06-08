@@ -55,14 +55,10 @@
 
 - 문장 유사도 Train 데이터
 <img width="772" alt="스크린샷 2022-06-08 오후 10 31 22" src="https://user-images.githubusercontent.com/50793789/172629192-ff99df36-4f19-4b82-9884-d24148ad7f75.png">
-    
-    [1] [https://github.com/kakaobrain/KorNLUDatasets](https://github.com/kakaobrain/KorNLUDatasets)
-    
-    [2] [https://github.com/warnikchow/paraKQC](https://github.com/warnikchow/paraKQC)
-    
-    [3] [https://github.com/yoongi0428/Kor-Sentence-Similarity](https://github.com/yoongi0428/Kor-Sentence-Similarity)
-    
-    [4] [https://klue-benchmark.com/tasks/67/data/description](https://klue-benchmark.com/tasks/67/data/description)
+    [https://github.com/kakaobrain/KorNLUDatasets](https://github.com/kakaobrain/KorNLUDatasets)
+    [https://github.com/warnikchow/paraKQC](https://github.com/warnikchow/paraKQC)
+    [https://github.com/yoongi0428/Kor-Sentence-Similarity](https://github.com/yoongi0428/Kor-Sentence-Similarity)
+    [https://klue-benchmark.com/tasks/67/data/description](https://klue-benchmark.com/tasks/67/data/description)
     
 - 문장 유사도  Validation & Test 데이터
     - 교육부와 한국과학창의재단이 지원한 서술형 평가 지원프로그램 개발 사업 데이터(연구책임: 하민수 교수)
