@@ -35,9 +35,7 @@
 
 
 문맥 유사도 채점 모델은 각 문장의 임베딩을 구하고 코사인 유사도 손실함수로 학습하는 **sentence BERT**를 이용했습니다. 일반적인 BERT모델로 문장쌍을 입력으로 넣고 회귀 혹은 이진분류로 학습하면 저희가 구축한 validation 데이터에서 좋지않은 성능이 나왔기 때문입니다. 더 좋은 문장 임베딩을 얻기 위해 사전 테스크와 다양한 데이터셋으로 실험해보았습니다.  그 결과 klue/bert-bas 사전학습 모델로 Natural langugage inference 테스크로 먼저 파인튜닝한 후,  문장 유사도 테스크에 파인튜닝한 모델을 선택하였습니다.
-
-<img width="735" alt="스크린샷 2022-06-08 오후 10 58 35" src="https://user-images.githubusercontent.com/50793789/172635452-9ac3d55b-def8-407a-a93d-1bd7b17e662c.png">
-
+<img width="934" alt="스크린샷 2022-06-08 오후 11 05 10" src="https://user-images.githubusercontent.com/50793789/172637099-9ba42056-59fa-4a78-8c2a-1645ea59377e.png">
 
 <img width="1048" alt="스크린샷 2022-06-08 오후 11 00 20" src="https://user-images.githubusercontent.com/50793789/172636095-61118d94-91e9-45e2-9c24-300f8f9521f0.png">
 
