@@ -10,10 +10,12 @@
       prop="index">
     </el-table-column>
     <el-table-column
+      sortable
       label="Student ID"
       prop="student_id">
     </el-table-column>
     <el-table-column
+      sortable
       label="Score"
       prop="score">
     </el-table-column>
@@ -26,6 +28,7 @@
         </el-button>
       </template>
     </el-table-column>
+    
   </el-table>
   <el-dialog title="채점 결과" :visible.sync="dialogTableVisible" width="80%">
     <el-table :data="gridData[this.current_id]">
@@ -35,11 +38,22 @@
         <span class="spe-score">모범답안 : {{scope.row.gold_answer}}</span>
       </template>
     </el-table-column>
-      <el-table-column align="center" type="index" property="problem_num" label="문제번호" width="100"></el-table-column>
-      <el-table-column align="center" property="keyword" label="키워드">
+      <el-table-column sortable align="center" type="index" property="problem_num" label="문제번호" width="100"></el-table-column>
+      <el-table-column 
+      align="center" property="keyword" label="키워드">
+        <template slot="header">
+            <el-popover ref="fromPopOver" after-leave=""placement="top-start" width="200" trigger="hover">
+              <span>푸른색은 정확히 일치한 키워드를, 초록색은 유의어 키워드를 나타냅니다</span>
+            </el-popover>
+            <span>키워드 <i
+                v-popover:fromPopOver
+                class="el-icon-info
+                text-blue" />
+            </span>
+          </template>
         <template slot-scope="scope">
           <div class="can-keyword" v-for="(v, i) in scope.row.keyword">
-            <el-tag :type="isIn(v, scope.row.user_keyword)" size="medium">
+            <el-tag :type="isIn(v, scope.row.user_keyword, scope.row.user_similarity_keyword)" size="medium">
               {{ v }}
             </el-tag>
           </div>
@@ -51,8 +65,9 @@
       </el-table-column>
       <el-table-column align="center" property="similarity" label="세부 점수">
         <template slot-scope="scope">
-          <span class="spe-score">Keyword Score : {{scope.row.keyword_score}}</span>
+          <el-tag :type="checkSim(scope.row.sim_score)">{{checkSimText(scope.row.sim_score)}}</el-tag>
           <span class="spe-score">Similarity Score : {{scope.row.sim_score}}</span>
+          <span class="spe-score">Keyword Score : {{scope.row.keyword_score}}</span>
         </template>
       </el-table-column>
       <el-table-column align="center" property="correctness" label="최종 점수" width="150">
@@ -146,11 +161,41 @@ export default {
       }
     },
     methods: {
+      checkSim(sim_score){
+        let type = ""
+        if(sim_score >= 0.75){
+          type = "success"
+        }else if(sim_score >= 0.35){
+          type = "warning"
+        }else{  
+          type = "danger"
+        }
+        return type
+      },
+      checkSimText(sim_score){
+        let message = ""
+        if(sim_score >= 0.75){
+          message = "유사"
+        }else if(sim_score >= 0.35){
+          message = "모호"
+        }else{  
+          message = "유의"
+        }
+        return message
+      },
       array2text(arr){
         return arr.join(" ")
       },
-      isIn(val, arr){
-        return arr.includes(val) ? "" : "info"
+      isIn(val, user_keyword, user_similarity_keyword){
+        let type = ""
+        if(user_keyword.includes(val)){
+          type=""
+        }else if(user_similarity_keyword.includes(val)){
+          type="success"
+        }else{
+          type = "info"
+        }
+        return type
       },
       handleEdit(index, row) {
         this.current_id = row.student_id
@@ -172,11 +217,16 @@ export default {
               answer : value.answer,
               keyword : v.keywords,
               user_keyword : value.match_info.keyword,
+              user_similarity_keyword : value.match_info.similarity_keyword,
               sim_score : value.sim_score,
+              sim_message : this.checkSimText(value.sim_score),
               keyword_score : value.keyword_score,
-              final_score :  Math.round(value.final_score * 100)
+              final_score :  Math.round(
+                (value.keyword_score * 0.5 + value.sim_score * 0.5) * 100
+                )
 
             }
+            console.log(property)
             if(this.studentResult.hasOwnProperty(student_id)){
               this.studentResult[student_id].push(property)
             }else{
@@ -187,6 +237,7 @@ export default {
         })
       
       this.gridData = this.studentResult
+      console.log(this.gridData)
       },
 
       preprocess_table(data){

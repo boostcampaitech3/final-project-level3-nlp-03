@@ -38,6 +38,17 @@ export default {
     }
   },
   methods : {
+    checkSimText(sim_score){
+      let message = ""
+      if(sim_score >= 0.75){
+        message = "유사"
+      }else if(sim_score >= 0.35){
+        message = "모호"
+      }else{  
+        message = "유의"
+      }
+      return message
+    },
     preprocessExport(){
       let data = this.$store.getters.getResult
       data = data.problem
@@ -55,17 +66,22 @@ export default {
               answer : value.answer,
               keyword : v.keywords.join("/"),
               user_keyword : value.match_info.keyword.join("/"),
+              similarity_keyword : value.match_info.similarity_keyword.join("/"),
               sim_score : value.sim_score,
+              sim_message : this.checkSimText(value.sim_score),
               keyword_score : value.keyword_score,
-              final_score :  Math.round(value.final_score * 100)
+              final_score :  Math.round(
+                (value.keyword_score * 0.5 + value.sim_score * 0.5) * 100
+                )
 
             }
+            console.log(property)
             this.studentResult.push(property)
           
         })
 
     })
-    console.log(this.studentResult)
+
     },
     tsvExport() {
 
