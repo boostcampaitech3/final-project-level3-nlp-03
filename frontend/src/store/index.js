@@ -18,6 +18,9 @@ export default new Vuex.Store({
     getProblem(state){
       return state.input_data
     },
+    getTestname(state){
+      return state.test_name
+    },
     getResult(state){
       return state.result_data
     },

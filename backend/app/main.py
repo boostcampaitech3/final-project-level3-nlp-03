@@ -20,13 +20,22 @@ from keyword_checker import checker
 from numpy import dot
 from numpy.linalg import norm
 
+from keyword_similarity import * 
 
+
+#global variable for pre-loading
+#sentence similarity
 model = None
 device = None
 tokenizer = None
-
 sbert_model = None
 LOAD_FROM = 'kimcando/sbert-kornli-knoSTS-trained'
+
+#word similarity and matching
+pos_tagger = None
+word_model = None
+Fast_KS = None
+
 
 
 def sentences_predict(model, tokenizer, sent_A, sent_B):
@@ -72,6 +81,53 @@ def load_refine_json_data(data):
     return student_id, answers, gold_answer
 
 
+#여기도 부를것
+def sync_match_info(answer, keywords, keyword_num, whole_keyword_list, student_num):
+    start_idx_list = []
+    end_idx_list = []
+    word_list = []
+    match_info = {}
+    match_info["keyword"] = []
+    match_info["similarity_keyword"] = []
+    match_info["start_idx"] = []
+    empty_count = 0
+
+
+    #keyword의 길이
+    len_keywords = len(keywords)
+
+    for i in range(len_keywords):
+        start_idx = whole_keyword_list[f"keyword_{i}"][f"student_{student_num}"][0][
+            "start_idx"
+        ]
+        end_idx = whole_keyword_list[f"keyword_{i}"][f"student_{student_num}"][1][
+            "end_idx"
+        ]
+        words = whole_keyword_list[f"keyword_{i}"][f"student_{student_num}"][2]["word"]
+        start_idx_list.append(start_idx)
+        end_idx_list.append(end_idx)
+        word_list.append(words)
+        if not start_idx:
+            empty_count += 1
+        else:
+            match_info["keyword"].append(keywords[i])
+    
+    for i in range(len(match_info["keyword"])):
+        if not match_info["keyword"][i] in answer:
+            match_info["similarity_keyword"].append(match_info["keyword"][i])
+    
+    match_info["keyword"] = [word for word in match_info["keyword"] if word not in match_info["similarity_keyword"]]
+
+    match_info["start_idx"] = start_idx_list
+    match_info["end_idx"] = end_idx_list
+    match_info["word"] = word_list
+
+    keyword_score = (len_keywords - empty_count) / len_keywords
+
+    return keyword_score, match_info
+
+
+#여기 분를것
 def make_problem_df(problem, problem_idx, sim_score, student_id, answers):
     new_data = {}
     new_data["problem_idx"] = problem_idx
@@ -79,18 +135,20 @@ def make_problem_df(problem, problem_idx, sim_score, student_id, answers):
     new_data["gold_answer"] = problem["gold_answer"]
     new_data["keywords"] = problem["keywords"]
 
+    keyword_num, whole_keyword_list = make_keyword_list(Fast_KS, new_data["keywords"], answers)
+
     result = []
     result_dict = {}
     result_len = len(student_id)
     for i in range(result_len):
         result_dict = {}
-        check_score, match_info = checker(answers[i], new_data["keywords"])
+        keyword_score, match_info = sync_match_info(answers[i], new_data["keywords"], keyword_num, whole_keyword_list, i)
+
         result_dict["student_id"] = student_id[i]
         result_dict["answer"] = answers[i]
         result_dict["sim_score"] = round(sim_score[i].astype(np.float64), 4)
-        result_dict["keyword_score"] = check_score
-        result_dict["total_score"] = round(sim_score[i] + check_score, 4)
-        result_dict["final_score"] = compute_final_score(check_score, round(sim_score[i].astype(np.float64),4))
+        result_dict["keyword_score"] = keyword_score
+        result_dict["total_score"] = round(sim_score[i] + keyword_score, 4)
         result_dict["match_info"] = match_info
         result.append(result_dict)
 
@@ -189,8 +247,6 @@ def inference_sbert_model(data):
     return output_dict
 
 
-
-
 app = FastAPI()
 
 class Problem(BaseModel):
@@ -206,21 +262,23 @@ class ProblemList(BaseModel):
 # before startup, load model
 @app.on_event("startup")
 async def modelUp():
-
-    print("model uploading")
-
-    global device, tokenizer, model, sbert_model
+    global device, tokenizer, model, sbert_model, pos_tagger, word_model, Fast_KS
+    print("--- model uploading ---")
+    print("--- Sbert Uploading ---")
     device = torch.device("cuda:0" if torch.cuda.is_available() else "cpu")
     tokenizer = AutoTokenizer.from_pretrained("xuio/sts-12ep")
-    model = AutoModelForSequenceClassification.from_pretrained(
-        "kimcando/para_test_4800"
-    )
-    model.cuda()
-
+    # model = AutoModelForSequenceClassification.from_pretrained(
+    #     "kimcando/para_test_4800"
+    # )
+    #model.cuda()
     sbert_model = SentenceTransformer(LOAD_FROM)
     sbert_model.cuda()
-
-    print("done")
+    print("Done")
+    print("--- FastText Uploading ---")
+    pos_tagger = Okt()
+    word_model = g.Doc2Vec.load("fast_text_ko")
+    Fast_KS = Keyword_similarity(word_model, 0.35, pos_tagger)
+    print("Done")
 
 #from here API
 @app.get("/api/")
@@ -254,9 +312,8 @@ def read_item(data : ProblemList):
     #for producton
     #uvicorn main:app --host=0.0.0.0 --port=8000 &
 
-    #for test
-    #uvicorn main:app --host=0.0.0.0 --port=30001 --reload
-
+    #for test 
+    #uvicorn main:app --host=0.0.0.0 --port=30003 --reload
 
 #gunicorn main:app -k uvicorn.workers.UvicornWorker -b 0.0.0.0:30001
 #gunicorn main:app --workers 1 --worker-class uvicorn.workers.UvicornWorker --bind 0.0.0.0:30001 --timeout 600

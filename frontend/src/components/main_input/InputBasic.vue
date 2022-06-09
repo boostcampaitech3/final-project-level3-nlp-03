@@ -4,7 +4,7 @@
   <el-tooltip :content="basic_info" placement="top" effect="light">
     <i class="el-icon-info"></i>
   </el-tooltip>
-  <el-input class="input-form" placeholder="Please input" v-model="input1">
+  <el-input class="input-form" placeholder="시험 이름을 입력하세요" v-model="input1">
     <template slot="prepend">시험 이름 </template>
   </el-input>
   

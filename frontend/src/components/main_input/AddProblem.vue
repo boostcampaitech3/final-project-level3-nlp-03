@@ -2,11 +2,11 @@
 <div class="add-problem">
   <div class="add-problem-header">
     <h3>문제와 모범 답안</h3>
-    <el-input class="input-form" placeholder="Please input" v-model="input1">
+    <el-input class="input-form" placeholder="문제를 입력해주세요" v-model="input1">
       <template slot="prepend">문제 </template>
     </el-input>
     
-    <el-input class="input-form" placeholder="Please input" v-model="input2">
+    <el-input class="input-form" placeholder="모범 답안을 입력해주세요" v-model="input2">
       <template slot="prepend">모범답안</template>
     </el-input>
     <h3>필수 키워드</h3>

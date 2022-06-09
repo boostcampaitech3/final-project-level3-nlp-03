@@ -99,10 +99,10 @@ class Keyword_similarity:
             
         return start_idx, end_idx, word_dict
 
-def make_keyword_list(keyword_list, sentence_list):
-    model_name = "fast_text_ko"
-    pos_tagger = Okt()
-    model = g.Doc2Vec.load(model_name)
-    Fast_KS = Keyword_similarity(model, 0.35, pos_tagger)
+def make_keyword_list(fastks, keyword_list, sentence_list):
+    # model_name = "fast_text_ko"
+    # pos_tagger = Okt()
+    # model = g.Doc2Vec.load(model_name)
+    # Fast_KS = Keyword_similarity(model, 0.35, pos_tagger)
     
-    return Fast_KS.get_keyword_score(keyword_list, sentence_list)
+    return fastks.get_keyword_score(keyword_list, sentence_list)
