@@ -108,7 +108,6 @@ def inference_sbert_model_multi(data):
         individual_df = make_problem_df(problem, problem_idx, sim_score, student_id, answers)
         new_problem.append(individual_df)
 
-        break  # 예시가 하나만 있기 때문에 들어가있는 break. 실제 json을 넘겨줄 시 지워야 한다
     output_dict["problem"] = new_problem
     output_json = json.dumps(output_dict)
 
