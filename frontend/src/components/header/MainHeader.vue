@@ -25,7 +25,6 @@ export default {
     doDemo(){
 
       this.$store.commit("loadingPending")
-
       let data = {
         "problem" : [
           {
@@ -62,6 +61,29 @@ export default {
           }
         ]
       }
+      let problem = "뜨거운 물이 들어있는 냄비에 나무국자와 금속 국자를 넣었는데, 나무국자는 뜨거워지지않고 금속국자는 뜨거워지는 이유는 무엇일까요?"
+      let gold_answer = "나무 재질보다 금속 재질이 열 전달이 더 잘 되기 때문이다"
+      let keywords = [
+              "열",
+              "전달",
+              "나무",
+              "금속"
+            ]
+
+      this.$notify({
+        title : "데모 실행",
+        dangerouslyUseHTMLString: true,
+        duration : 10000,
+        type : "sucess",
+        message: `
+        <span>문제 : ${problem}</span> 
+        <hr>
+        <span>모범답안 : ${gold_answer}</span>
+        <hr>
+        <span>키워드 : ${keywords.toString()}</span>         
+        `
+      })
+
 
         Api.sendData(data)
         .then((res)=>{
