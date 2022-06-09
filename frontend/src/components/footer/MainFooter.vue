@@ -1,9 +1,8 @@
 
 <template>
   <el-row class="footer-conainter" :gutter="10">
-    <el-col :sm="24" :md="12" >
+    <el-col class="logo-link" :sm="24" :md="12" >
       <img class="footer-logoa" :src="require(`@/assets/title.png`)">
-
       <a href="https://github.com/boostcampaitech3/final-project-level3-nlp-03">
         <img class="icon" :src="require(`@/assets/github.png`)">
       </a>
@@ -40,6 +39,10 @@ export default {
 
   background-color : #f4f6f8;
   border : 1px solid red;
+}
+.logo-link{
+  display : flex;
+  align-items: center;
 }
 .footer-logoa{
   width : 150px;
