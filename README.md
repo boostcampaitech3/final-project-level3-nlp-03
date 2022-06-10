@@ -78,7 +78,6 @@
 - 문장 유사도  Validation & Test 데이터
     - [교육부와 한국과학창의재단이 지원한 서술형 평가 지원프로그램 개발 사업 데이터(연구책임: 하민수 교수)](https://www.kci.go.kr/kciportal/ci/sereArticleSearch/ciSereArtiView.kci?sereArticleSearchBean.artiId=ART002502290)
 
-[데이터 리드미](https://www.notion.so/f98c957929bb4d1ea84c3909c1cd93d7)
 
 ## 사용 매뉴얼
 - 다음 매뉴얼을 참고해주세요
