@@ -38,7 +38,7 @@
 문맥 유사도 채점 모델은 각 문장의 임베딩을 구하고 코사인 유사도 손실함수로 학습하는 **sentence BERT**를 이용했습니다. 일반적인 BERT모델로 문장쌍을 입력으로 넣고 회귀 혹은 이진분류로 학습하면 저희가 구축한 validation 데이터에서 좋지않은 성능이 나왔기 때문입니다. 더 좋은 문장 임베딩을 얻기 위해 사전 테스크와 다양한 데이터셋으로 실험해보았습니다.  그 결과 klue/bert-bas 사전학습 모델로 Natural langugage inference 테스크로 먼저 파인튜닝한 후,  문장 유사도 테스크에 파인튜닝한 모델을 선택하였습니다.
 <img width="934" alt="스크린샷 2022-06-08 오후 11 05 10" src="https://user-images.githubusercontent.com/50793789/172637099-9ba42056-59fa-4a78-8c2a-1645ea59377e.png">
 
-<img width="1048" alt="스크린샷 2022-06-08 오후 11 00 20" src="https://user-images.githubusercontent.com/50793789/172636095-61118d94-91e9-45e2-9c24-300f8f9521f0.png">
+<img width="960" height="300" alt="스크린샷 2022-06-08 오후 11 00 20" src="https://user-images.githubusercontent.com/50793789/172636095-61118d94-91e9-45e2-9c24-300f8f9521f0.png">
 
 
 <img width="1066" alt="스크린샷 2022-06-08 오후 11 02 12" src="https://user-images.githubusercontent.com/50793789/172636469-5835d781-6490-48f1-a658-473b2438bc13.png">
@@ -75,8 +75,12 @@
     - 라벨 : 0 또는 1
     - 데이터 개수 : 14,390
     
-- 문장 유사도  Validation & Test 데이터
-    - [교육부와 한국과학창의재단이 지원한 서술형 평가 지원프로그램 개발 사업 데이터(연구책임: 하민수 교수)](https://www.kci.go.kr/kciportal/ci/sereArticleSearch/ciSereArtiView.kci?sereArticleSearchBean.artiId=ART002502290)
+- 문장 유사도  Validation & Test 데이터 : [교육부와 한국과학창의재단이 지원한 서술형 평가 지원프로그램 개발 사업 데이터(연구책임: 하민수 교수)](https://www.kci.go.kr/kciportal/ci/sereArticleSearch/ciSereArtiView.kci?sereArticleSearchBean.artiId=ART002502290)
+    - 초, 중, 고등학교 교육과정에 해당되는 사회, 과학 서술형 문제 64문항
+    - [raw data](https://github.com/boostcampaitech3/final-project-level3-nlp-03/tree/main/data_validation/wai_raw_data) : 문제, 학생 답안, 문제에 대한 키워드 및 답안별 키워드 포함여부로 구성되어 있습니다. 
+    - [validation data](https://github.com/boostcampaitech3/final-project-level3-nlp-03/blob/main/data_validation/validation_data_construction/validation.csv) : 실제로 모델 평가에 사용되었던 validation dataset입니다. 모범 답안 제작 및 파일럿 태깅을 통해 데이터를 직접 구축했습니다. 
+    - [paired data](https://github.com/boostcampaitech3/final-project-level3-nlp-03/tree/main/data_validation/validation_data_construction/cosine_similarity) : raw data에 대해 모범 답안을 문제 별로 직접 제작하고, (모범 답안, 학생 답안) pair를 만들어 두 문장 임베딩 간의 cosine similarity를 구해서 pair 데이터셋을 제작했습니다. 
+    
 
 
 ## 사용 매뉴얼
