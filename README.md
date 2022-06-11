@@ -63,19 +63,19 @@
 
 ## 데이터
 
-- 문장 유사도 Train 데이터(오픈 데이터)
+- 문장 유사도 채점 모델 Train 데이터(오픈 데이터)
   | |[KorSTS](https://github.com/kakaobrain/KorNLUDatasets)|[paraKQC](https://github.com/warnikchow/paraKQC)|[Kor-sentence](https://github.com/yoongi0428/Kor-Sentence-Similarity)|[KLUE STS](https://klue-benchmark.com/tasks/67/data/description)|
   |--|------|------|------|------|
   |라벨|0~5값|0 또는 1|0 또는 1|0 또는 1 / 0~5값|0 또는 1|
   |특징|짧은 문장.외국 STS-B 번역. 뉴스, 표현 설명 내용|짧은 문장. 질문중심|짧은 문장. 지식인 질문 포함. 인터넷 용어 다수| 짧은 문장. Airbnb, Policy, paraKQC 포함|
   |데이터 개수| 5,749 | 15,170 | 61,220 | 11,668 | 14,390|
 
-- 문장 유사도 Train 데이터(제작 데이터)
+- 문장 유사도 채점 모델 Train 데이터(제작 데이터)
     - 짧은 문장. 유의어, 반의어 고려해 데이터 제작
     - 라벨 : 0 또는 1
     - 데이터 개수 : 14,390
     
-- 문장 유사도  Validation & Test 데이터 : [교육부와 한국과학창의재단이 지원한 서술형 평가 지원프로그램 개발 사업 데이터(연구책임: 하민수 교수)](https://www.kci.go.kr/kciportal/ci/sereArticleSearch/ciSereArtiView.kci?sereArticleSearchBean.artiId=ART002502290)
+- 키워드 채점 & 문장 유사도 채점 모델 Validation & Test 데이터 : [교육부와 한국과학창의재단이 지원한 서술형 평가 지원프로그램 개발 사업 데이터(연구책임: 하민수 교수)](https://www.kci.go.kr/kciportal/ci/sereArticleSearch/ciSereArtiView.kci?sereArticleSearchBean.artiId=ART002502290)
     - 초, 중, 고등학교 교육과정에 해당되는 사회, 과학 서술형 문제 64문항
     - [raw data](https://github.com/boostcampaitech3/final-project-level3-nlp-03/tree/main/data_validation/wai_raw_data) : 문제, 학생 답안, 문제에 대한 키워드 및 답안별 키워드 포함여부로 구성되어 있습니다. 
     - [validation data](https://github.com/boostcampaitech3/final-project-level3-nlp-03/blob/main/data_validation/validation_data_construction/validation.csv) : 실제로 모델 평가에 사용되었던 validation dataset입니다. 모범 답안 제작 및 파일럿 태깅을 통해 데이터를 직접 구축했습니다. 
