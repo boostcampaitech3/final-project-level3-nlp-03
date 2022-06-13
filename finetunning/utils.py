@@ -51,7 +51,7 @@ def compute_metrics_bin(pred):
 
 def compute_metrics_cls(pred):
     labels = pred.label_ids
-    breakpoint()
+
     preds = pred.predictions.argmax(-1)
     precision, recall, f1, _ = precision_recall_fscore_support(labels, preds)
     acc = accuracy_score(labels, preds)
