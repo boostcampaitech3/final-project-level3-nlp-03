@@ -141,16 +141,17 @@ def model_test_reg(csv_save_name):
         normalized_scores = (logits/5).cpu().squeeze().numpy()
         org_scores = logits.cpu().squeeze().numpy()
     data = {'sent_a': sent_a, 'sent_b': sent_b, 'labels': org_labels, 'normalized_scores': normalized_scores.tolist(), 'org_scores': org_scores.tolist()}
-    threshold = [0.6,0.7,0.8,0.9,0.95]
+    threshold = [0.6,0.7,0.8,0.9]
     for thr in threshold:
-        new = np.where(normalized_scores>thr, 1,0).tolist()
+        new = np.where(org_scores>thr, 1,0).tolist()
+        # new = np.where(normalized_scores > thr, 1, 0).tolist()
         data.update({f'thr_{thr}':new})
 
     df = pd.DataFrame(data)
     df.to_csv(os.path.join(SAVE_BASE_PATH,csv_save_name))
 
 def check_bin_acc(df):
-    threshold = [0.6, 0.7, 0.8, 0.9, 0.95]
+    threshold = [0.6, 0.7, 0.8, 0.9]
     for thr in threshold:
         cnt = 0
 
@@ -166,11 +167,12 @@ def check_bin_acc(df):
         print(f'{thr} : {cnt / len(df)}')
 
 def check_reg_acc(df):
-    threshold = [0.6, 0.7, 0.8, 0.9, 0.95]
+    threshold = [0.6, 0.7, 0.8, 0.9]
     for thr in threshold:
         cnt = 0
 
         for idx in range(len(df)):
+            # normalized_scores
             val = df['org_scores'][idx]
             if val >= thr:
                 label = 1
@@ -179,23 +181,77 @@ def check_reg_acc(df):
 
             if df['labels'][idx] == label:
                 cnt += 1
+
         print(f'{thr} : {cnt / len(df)}')
+
+def model_test_reg_korsts(csv_save_name):
+    import torch.nn.functional as F
+    device = torch.device("cuda" if torch.cuda.is_available() else "cpu")
+    model = AutoModelForSequenceClassification.from_pretrained(LOAD_FROM,num_labels=1).to(device)
+    tokenizer = AutoTokenizer.from_pretrained(TOKENIZED_FROM)
+
+    model.eval()
+    try:
+        pairs = pd.read_csv(VALID_DATA_PATH).drop(columns=['Unnamed: 0.1', 'Unnamed: 0'])
+    except:
+        pairs = pd.read_csv(VALID_DATA_PATH)
+    sent_a = pairs['sent_a'].tolist()
+    sent_b = pairs['sent_b'].tolist()
+    org_labels = pairs['labels'].tolist()
+
+    tokenized_sent = tokenizer(
+        sent_a,
+        sent_b,
+        padding=True,
+        return_tensors="pt",
+        truncation=True,
+        add_special_tokens=True,
+        max_length=64
+    )
+    tokenized_sent.to('cuda:0')
+    with torch.no_grad():  # 그라디엔트 계산 비활성화
+        outputs = model(
+            input_ids=tokenized_sent['input_ids'],
+            attention_mask=tokenized_sent['attention_mask'],
+            token_type_ids=tokenized_sent['token_type_ids']
+        )
+
+        logits = outputs[0]
+
+        normalized_scores = (logits/5).cpu().squeeze().numpy()
+        org_scores = F.sigmoid(logits).cpu().squeeze().numpy()
+        # org_scores = logits.cpu().squeeze().numpy()
+      
+    data = {'sent_a': sent_a, 'sent_b': sent_b, 'labels': org_labels, 'normalized_scores': normalized_scores.tolist(), 'org_scores': org_scores.tolist()}
+    # threshold = [0.6,0.7,0.8,0.9]
+    # for thr in threshold:
+    #     new = np.where(normalized_scores>thr, 1,0).tolist()
+    #     data.update({f'thr_{thr}':new})
+
+    df = pd.DataFrame(data)
+    df.to_csv(os.path.join(SAVE_BASE_PATH,csv_save_name))
 
 if __name__=='__main__':
 
     # pipeline_test_bin()
-    VALID_DATA_PATH = '/opt/ml/projects/tunning_data/validation_short_wrong_v3.csv'
+    VALID_DATA_PATH = '/opt/ml/projects/tunning_data/demo_eval.csv'
+    # VALID_DATA_PATH = '/opt/ml/projects/tunning_data/validation_v1.csv'
     SAVE_BASE_PATH = '/opt/ml/projects/final-project-level3-nlp-03/finetunning/inference_results'
     os.makedirs(SAVE_BASE_PATH,exist_ok=True)
     TOKENIZED_FROM = 'klue/bert-base'
-    LOAD_FROM = '/opt/ml/projects/final-project-level3-nlp-03/finetunning/results/paraKQC_second'
-    csv_save_name = 'klueSTS_reg_1000_final_short_v3.csv'
-    # model_test_reg(csv_save_name)
-    # model_test_bin(csv_save_name)
-    FILE_NAME =  'klueSTS_reg_1000.csv' # 'klueSTS_reg_1000_gen_bin_final.csv' # 'klueSTS_reg_1000_para_bin_final.csv'
+    LOAD_FROM = '/opt/ml/projects/final-project-level3-nlp-03/finetunning/results/korsts_first'
+    csv_save_name = 'klue-bert-korSTS-first-demo_eval.csv'
+
+    model_test_reg(csv_save_name) # model_test_reg_korsts(csv_save_name)
+    # model_test_reg_korsts(csv_save_name)
+    FILE_NAME =  csv_save_name # 'klueSTS_reg_1000_gen_bin_final.csv' # 'klueSTS_reg_1000_para_bin_final.csv'
     df = pd.read_csv(os.path.join(SAVE_BASE_PATH, FILE_NAME))
-    # check_bin_acc(df)
     check_reg_acc(df)
+
+    # model_test_bin(csv_save_name)
+    # FILE_NAME = csv_save_name  # 'klueSTS_reg_1000_gen_bin_final.csv' # 'klueSTS_reg_1000_para_bin_final.csv'
+    # df = pd.read_csv(os.path.join(SAVE_BASE_PATH, FILE_NAME))
+    # check_bin_acc(df)
 
 
 

@@ -4,27 +4,27 @@
 # https://velog.io/@leaps/Pytorch-1.-Config-module-%EB%A7%8C%EB%93%A4%EA%B8%B0
 
 TRAIN_DATA:
-    train_data_path : '/opt/ml/projects/tunning_data/kor-sentence-truncated-train.csv'
-    data_name : 'kor-sentence'
-
-TASK:
-    type : 'cls'
+    train_data_path : '/opt/ml/projects/tunning_data/korSTS_train.csv'
+    data_name : 'korsts'
 
 TEST_DATA:
-    test_data_path : '/opt/ml/projects/tunning_data/validation_v1.csv' # '/opt/ml/projects/tunning_data/kor-sentence-valid.csv'
+    test_data_path : '/opt/ml/projects/tunning_data/korSTS_valid.csv'
 
 MODEL:
-    model_name : 'klue/roberta-large' # used for model, tokenizer
-    num_labels : 2
+    model_name : 'klue/bert-base' # used for model, tokenizer
+    num_labels : 1
+
+TASK:
+    type : 'reg'
 
 TOKENIZER:
-    model_name : 'klue/roberta-large'
+    model_name : 'klue/bert-base'
     truncation : True
-    max_length : 64
+    max_length : 512
 
 TRAIN:
     num_train_epochs : 6
-    train_bs : 64
+    train_bs : 32
     eval_bs : 64
     lr : 2e-5
     save_steps: 1000

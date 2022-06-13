@@ -51,8 +51,8 @@ def upload_model(config):
 
 def upload_sentence_transformer(config):
     HUGGINGFACE_AUTH_TOKEN = '' # https://huggingface.co/settings/token
-    MODEL_SAVE_REPO = 'ko-paraKQC-demo2'  # ex) 'my-bert-fine-tuned'
-    MODEL_SAVED_PATH =  '/opt/ml/projects/final-project-level3-nlp-03/finetunning/output/paraKQC-ko' # "klue/bert-base"#"/opt/ml/projects/final-project-level3-nlp-03/modeling/results/checkpoint-1000"
+    MODEL_SAVE_REPO = 'sbert-kornli-knoSTS-trained'  # ex) 'my-bert-fine-tuned'
+    MODEL_SAVED_PATH =  '/opt/ml/projects/final-project-level3-nlp-03/finetunning/output/klue-bert-nli_sts_cosine' # "klue/bert-base"#"/opt/ml/projects/final-project-level3-nlp-03/modeling/results/checkpoint-1000"
 
     # 학습완료된 모델과 토크나이저 파일 로드
     from sentence_transformers import SentenceTransformer
@@ -61,7 +61,7 @@ def upload_sentence_transformer(config):
 
 def check_sentence_transforemrs(config):
     from sentence_transformers import SentenceTransformer
-    MODEL_SAVE_REPO = 'kimcando/ko-paraKQC-demo2'
+    MODEL_SAVE_REPO = 'kimcando/sbert-kornli-knoSTS-trained'
     model = SentenceTransformer(MODEL_SAVE_REPO)
     print('done!')
 
@@ -69,7 +69,7 @@ def check(config):
 
 
     HUGGINGFACE_AUTH_TOKEN = '' # https://huggingface.co/settings/token
-    LOAD_FROM = 'kimcando/reg_trained'
+    LOAD_FROM = 'kimcando/sbert-kornli+knoSTS-trained'
 
     #######  load from huggingface  #############
     # 만약 private repo면 use_auth_token 사용 필요
