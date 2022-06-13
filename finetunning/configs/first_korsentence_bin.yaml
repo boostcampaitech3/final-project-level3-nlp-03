@@ -11,14 +11,14 @@ TASK:
     type : 'cls'
 
 TEST_DATA:
-    test_data_path : '/opt/ml/projects/tunning_data/validation_v1.csv' # '/opt/ml/projects/tunning_data/kor-sentence-valid.csv'
+    test_data_path : '/opt/ml/projects/tunning_data/validation_v1.csv'
 
 MODEL:
-    model_name : 'klue/roberta-large' # used for model, tokenizer
+    model_name : 'klue/bert-base' # used for model, tokenizer
     num_labels : 2
 
 TOKENIZER:
-    model_name : 'klue/roberta-large'
+    model_name : 'klue/bert-base'
     truncation : True
     max_length : 64
 
