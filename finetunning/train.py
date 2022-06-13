@@ -36,11 +36,17 @@ def main(config):
         train_label = get_label(train_data)
         test_label = get_label(test_data)
 
-    elif config['TRAIN_DATA']['data_name'] in ['korsts','paraKQC', 'gen']:
+    elif config['TRAIN_DATA']['data_name'] in ['korsts','paraKQC', 'gen','kor-sentence']:
         train_data = preprocess_basic(config['TRAIN_DATA']['train_data_path'], train=True)
         test_data = preprocess_basic(config['TEST_DATA']['test_data_path'], train=False)
         train_label = get_label(train_data)
         test_label = get_label(test_data)
+        if config['TRAIN_DATA']['data_name'] == 'korsts':
+            train_label, test_label = train_label/5, test_label/5
+            compute_metric = compute_metrics_reg
+        else:
+            compute_metric = compute_metrics_bin
+
 
     elif config['TRAIN_DATA']['data_name'] == 'klueSTS':
         dataset = load_dataset("klue", "sts")
@@ -77,6 +83,7 @@ def main(config):
     test_dataset = MultiSentDataset(tokenized_test_sentences, test_label,data_type=config['TRAIN_DATA']['data_name'],)
 
     final_output_dir = os.path.join(config['OUTPUT']['model_save'], config['TRAIN_DATA']['data_name']+'_first')
+
     os.makedirs(final_output_dir, exist_ok=True)
 
 #       lr_scheduler_type = train_args.scheduler, # ['linear', 'cosine', 'cosine_with_restarts', 'polynomial', 'constant', 'constant_with_warmup']
@@ -101,6 +108,7 @@ def main(config):
 
     #######  models  #############
     #model = get_trained_model(config, LOAD_NAME='xuio/roberta-sts12',pre_task = 'reg', this_task = 'bin', load_from_huggingface=True)
+    # finetuning할 때 여기만 바꾸면 되긴함
     model = get_model(config)
     # model_checkpoint = config['MODEL']['model_name']
     # model_config = AutoConfig.from_pretrained(model_checkpoint)
@@ -137,7 +145,7 @@ if __name__ == "__main__":
     ## config에 추가되어있는 argparse의 값을 변경하려면 config의 소문자값과 일치시켜주세요!
 
     args = get_args()
-    config_path = './configs/first_klueSTS_reg.yaml' #'./configs/base_config.yaml'
+    config_path = args.config_path #'./configs/base_config.yaml'
 
     ## argparse로 세팅한 값을 config 파일에 업데이트하게 됩니다.
     with open(config_path, 'r') as config_file:
