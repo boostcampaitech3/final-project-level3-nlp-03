@@ -1,0 +1,12 @@
+/backend
+.vscode
+__pycache__
+
+app/nohup.out
+
+#fasttext
+fast_text_ko
+fast_text_ko.syn1neg.npy
+fast_text_ko.wv.vectors_ngrams.npy
+fast_text_ko.wv.vectors_vocab.npy
+fast_text.embedding

@@ -1,0 +1,48 @@
+{
+  "name": "autograder",
+  "version": "0.1.0",
+  "private": true,
+  "scripts": {
+    "serve": "vue-cli-service serve --mode dev",
+    "build": "vue-cli-service build --mode prod",
+    "lint": "vue-cli-service lint"
+  },
+  "dependencies": {
+    "@fortawesome/fontawesome-svg-core": "^6.1.1",
+    "@fortawesome/free-regular-svg-icons": "^6.1.1",
+    "@fortawesome/free-solid-svg-icons": "^6.1.1",
+    "@fortawesome/vue-fontawesome": "^2.0.6",
+    "@vue/composition-api": "^1.6.2",
+    "axios": "^0.27.2",
+    "chart.js": "^3.8.0",
+    "core-js": "^3.8.3",
+    "csv-loader": "^3.0.3",
+    "element-ui": "^2.15.8",
+    "js-file-download": "^0.4.12",
+    "papaparse": "^5.3.2",
+    "qs": "^6.10.3",
+    "vue": "^2.6.14",
+    "vue-chartjs": "^4.1.0",
+    "vue-csv-import": "^4.1.2",
+    "vue-google-charts": "^1.0.0",
+    "vue-highlight-words": "^2.0.0",
+    "vue-router": "^3.5.1",
+    "vue-text-highlight": "^2.0.10",
+    "vue-word-highlighter": "^1.0.4",
+    "vuex": "^3.6.2"
+  },
+  "devDependencies": {
+    "@babel/core": "^7.12.16",
+    "@babel/eslint-parser": "^7.12.16",
+    "@vue/cli-plugin-babel": "~5.0.0",
+    "@vue/cli-plugin-eslint": "~5.0.0",
+    "@vue/cli-plugin-router": "~5.0.0",
+    "@vue/cli-plugin-vuex": "~5.0.0",
+    "@vue/cli-service": "~5.0.0",
+    "eslint": "^7.32.0",
+    "eslint-plugin-vue": "^8.0.3",
+    "sass": "^1.32.7",
+    "sass-loader": "^12.0.0",
+    "vue-template-compiler": "^2.6.14"
+  }
+}

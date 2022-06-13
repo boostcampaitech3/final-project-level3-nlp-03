@@ -56,7 +56,7 @@ class Keyword_similarity:
         for keyword, students in result.items():
             temp = []
             for idx, sentence in students.items():    
-                if len(sentence[0]) != 0:
+                if len(sentence[0]["start_idx"]) != 0:
                     temp.append(1)
                 else : 
                     temp.append(0)
@@ -68,8 +68,8 @@ class Keyword_similarity:
             for i in range(sentence_num):
                 keyword_score[i] += score[i]
 
-        print(keyword_score)
-        print(result)
+        # print(keyword_score)
+        # print(result)
 
         return keyword_score, result
         
@@ -97,7 +97,10 @@ class Keyword_similarity:
         keyword_vec = self.model.wv.get_vector(pos_keyword[0][0])
         
         start_idx = {}
+        start_list = []
         end_idx = {}
+        end_list = []
+        word_dict = {}
         word_list = []
         split_sentence = sentence.split()
         for word in split_sentence:
@@ -116,12 +119,18 @@ class Keyword_similarity:
                     if cosine_similarity(keyword_vec, word_vec) > self.threshold and pos_word not in word_list:
                         results = re.finditer(word, sentence)
                         for matched_key in results:
-                            start_idx["start_dix"] = matched_key.start()
-                            end_idx["end_idx"] = matched_key.end()
-                        
-                        word_list.append(pos_word[0][0])
+                            # start_idx["start_dix"] = matched_key.start()
+                            # end_idx["end_idx"] = matched_key.end()
+                            # word_dict["word"] = word
+                            start_list.append(matched_key.start())
+                            end_list.append(matched_key.end())
+                            word_list.append(pos_word[0][0])
+        
+        start_idx["start_idx"] = start_list
+        end_idx["end_idx"] = end_list
+        word_dict["word"] = word_list
             
-        return start_idx, end_idx, word_list
+        return start_idx, end_idx, word_dict
 
 def main(keyword_list, sentence_list, model_name):
     pos_tagger = Okt()
