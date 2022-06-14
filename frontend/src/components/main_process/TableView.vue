@@ -87,6 +87,9 @@ export default {
     components: {
       WordHighlighter,
     },
+    props : [
+      'alpha'
+    ],
     data() {
       return {
         True : true,
@@ -144,6 +147,7 @@ export default {
         // }]
         },
         dialogTableVisible: false,
+        rawData : null,
       }
     },
     computed : {
@@ -153,10 +157,14 @@ export default {
 
     },
     watch : {
+      alpha(val, old){
+        this.preprocess_modal(this.rawData.problem, val)
+        this.preprocess_table(this.gridData)
+      },
       loading(val, old){
-        let data = this.$store.getters.getResult
+        this.rawData = this.$store.getters.getResult
         //console.log(data)
-        this.preprocess_modal(data.problem)
+        this.preprocess_modal(this.rawData.problem)
         this.preprocess_table(this.gridData)
       }
     },
@@ -201,8 +209,15 @@ export default {
         this.current_id = row.student_id
         //console.log(this.current_id)
       },
+      calTotalScore(key_score, sim_score, alpha){
+        
+        let a = alpha / 100
+        let final_score =  ((key_score * a  + sim_score * (1 - a)) * 100).toFixed(2)
+        
+        return final_score
 
-      preprocess_modal(data){
+      },
+      preprocess_modal(data, alpha=50){
         this.studentResult = {}
 
         data.forEach((v, i) => {
@@ -221,12 +236,10 @@ export default {
               sim_score : value.sim_score,
               sim_message : this.checkSimText(value.sim_score),
               keyword_score : value.keyword_score,
-              final_score :  Math.round(
-                (value.keyword_score * 0.5 + value.sim_score * 0.5) * 100
-                )
+              final_score : this.calTotalScore(value.keyword_score, value.sim_score, alpha)
 
             }
-            console.log(property)
+            // console.log(property)
             if(this.studentResult.hasOwnProperty(student_id)){
               this.studentResult[student_id].push(property)
             }else{
@@ -237,7 +250,7 @@ export default {
         })
       
       this.gridData = this.studentResult
-      console.log(this.gridData)
+
       },
 
       preprocess_table(data){
@@ -249,9 +262,10 @@ export default {
           data[student_id].forEach((v, i) => {
             score += v.final_score
           })
+          //console.log(score)
           this.tableData.push({
             student_id : student_id,
-            score : `${score} / ${data[student_id].length * 100}`
+            score : `${Number(score)} / ${data[student_id].length * 100}`
 
           })
         }

@@ -1,8 +1,29 @@
 <template>
 <div v-show="loading">
     <h2 class="result" ref="result">결과 확인</h2>
-    <el-button size="small" class="result-button" type="primary" @click="tsvExport()">결과 추출 (.TSV)</el-button>
-    <table-view></table-view>
+    <el-button class="result-button" type="primary" @click="tsvExport()">결과 추출 (.TSV)</el-button>
+    </br>
+    <h3 class="alpha-header">Alpha 값 조절(%)</h3>
+    <el-popover
+    placement="top-start"
+    title="최종점수는 다음의 공식에 의하여 적용됩니다. alpha값을 적용하여 weight를 다르게 줄 수 있습니다 "
+    width="250"
+    trigger="hover">
+      <template v-slot>
+        <code>
+          final_score = {keyword score * a + similarity score * (1-a)} * 100
+        </code>
+      </template>
+      <i slot="reference" class="el-icon-info"></i>
+
+      </el-popover>
+    <div class="block">
+      <el-slider
+        v-model="alpha"
+        show-input>
+      </el-slider>
+    </div>
+    <table-view :alpha=alpha></table-view>
     <!-- <h2>결과 통계</h2>
     <graph-view></graph-view> -->
 </div>
@@ -19,12 +40,16 @@ export default {
 
   },
   watch : {
+    alpha(val, old){
+      //this.preprocessExport(val)
+    },
     loading(val, old){
      // console.log(val, old)
      //this.$refs.result.$el.scrollIntoView({ behavior: 'smooth' });
     }
   },
   computed : {
+
     loading(){
       return !this.$store.getters.getLoadingStatus
     },
@@ -35,6 +60,7 @@ export default {
   data(){
     return{
       studentResult : [],
+      alpha: 50,
     }
   },
   methods : {
@@ -48,6 +74,13 @@ export default {
         message = "유의"
       }
       return message
+    },
+    calTotalScore(key_score, sim_score, alpha){
+      
+      let a = alpha / 100
+      let final_score =  ((key_score * a  + sim_score * (1 - a)) * 100).toFixed(2)
+      return final_score
+
     },
     preprocessExport(){
       let data = this.$store.getters.getResult
@@ -70,12 +103,11 @@ export default {
               sim_score : value.sim_score,
               sim_message : this.checkSimText(value.sim_score),
               keyword_score : value.keyword_score,
-              final_score :  Math.round(
-                (value.keyword_score * 0.5 + value.sim_score * 0.5) * 100
-                )
+              final_score :  this.calTotalScore(value.keyword_score, value.sim_score, this.alpha)
+              
 
             }
-            console.log(property)
+
             this.studentResult.push(property)
           
         })
@@ -85,7 +117,7 @@ export default {
     },
     tsvExport() {
 
-      let name = this.testName ? `${this.textName}.tsv`: "export.tsv"
+      let name = this.testName ? `${this.testName}.tsv`: "export.tsv"
       this.preprocessExport()
       let arrData = this.studentResult
       let csvContent = "data:text/tsv;charset=utf-8,";
@@ -114,4 +146,9 @@ export default {
 .result-button{
   margin : 0 0 0 10px;
 }
+h3{
+  display:inline-block;
+  margin : 0 5px 0 0;
+}
+
 </style>

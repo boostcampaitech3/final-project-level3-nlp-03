@@ -1,4 +1,7 @@
-# autograder
+# Gompada - Frontend
+
+## Environment
+* node : v14.16.0 or above
 
 ## Project setup
 ```
