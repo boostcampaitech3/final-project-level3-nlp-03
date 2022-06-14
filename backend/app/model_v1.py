@@ -103,7 +103,7 @@ def inference_model(data):
         individual_df = make_problem_df(problem, i, sim_score, student_id, answers)
         new_problem.append(individual_df)
 
-        break  # 예시가 하나만 있기 때문에 들어가있는 break. 실제 json을 넘겨줄 시 지워야 한다
+
     output_dict["problem"] = new_problem
     output_json = json.dumps(output_dict)
     # with open("./result.json", "w") as f:  # result 눈으로 확인하는 용도
@@ -165,7 +165,7 @@ def inference_sbert_model(data):
         individual_df = make_problem_df(problem, problem_idx, sim_score, student_id, answers)
         new_problem.append(individual_df)
 
-        break  # 예시가 하나만 있기 때문에 들어가있는 break. 실제 json을 넘겨줄 시 지워야 한다
+
     output_dict["problem"] = new_problem
     output_json = json.dumps(output_dict)
     with open("./result.json", "w") as f:  # result 눈으로 확인하는 용도
@@ -173,7 +173,7 @@ def inference_sbert_model(data):
     return output_json
 
 def output_sbert():
-    with open("./example.json", "r") as f:
+    with open("./example_1.json", "r") as f:
         json_data = json.load(f)
     inference_sbert_model(json_data)
 
@@ -181,5 +181,5 @@ def output_sbert():
 if __name__=='__main__':
     # inference_sbert_model(None)
     output_sbert()
-    output()
+    #output()
 
