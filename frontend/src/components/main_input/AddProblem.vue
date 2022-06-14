@@ -223,6 +223,7 @@ export default {
 }
 h3{
   display:inline-block;
+  margin-right : 5px;
 }
 code {
     padding: 0.25rem;
