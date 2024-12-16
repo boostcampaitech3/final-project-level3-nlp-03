@@ -2,7 +2,7 @@
 
 > **곰파다** : 사물이나 일의 속내를 알려고 자세히 찾아보고 따지다.
 
-> 최종 발표 [구글 슬라이드](https://docs.google.com/presentation/d/1bqOktYzIKhQZGDryHPhlE8sLUHnpPsBr/edit?usp=sharing&ouid=108719150340245142350&rtpof=true&sd=true) 및 [pdf](https://github.com/boostcampaitech3/final-project-level3-nlp-03/blob/main/NLP03_GOMPADA_Presentation.pdf) & [Youtube]()
+> 최종 발표 [구글 슬라이드](https://docs.google.com/presentation/d/1bqOktYzIKhQZGDryHPhlE8sLUHnpPsBr/edit?usp=sharing&ouid=108719150340245142350&rtpof=true&sd=true) 및 [pdf](https://github.com/boostcampaitech3/final-project-level3-nlp-03/blob/main/NLP03_GOMPADA_Presentation.pdf) & [Youtube](https://www.youtube.com/watch?v=vM7oUFATdR0)
 > 
 곰파다는 학생들의 서술형 답안을 자동으로 채점해 선생님들의 반복적 채점 작업을 효율적으로 줄여주는 프로젝트입니다. 교육기관에서 사용하는 AI 자동 채점 시스템이 기존의 단점(띄어쓰기, 유사어 등을 판별하지 못하는 것)으로 인해 실제로 사용하기 어렵다는 사실을 바탕으로, 단점들을 개선하고 더욱 정밀한 채점 보조 서비스를 만들고자 했습니다.
 
